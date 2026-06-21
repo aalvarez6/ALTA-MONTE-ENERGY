@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ════════════════════════════════════════════════
+   ALTA MONTE ENERGY — Sistema de marca oficial
+   Paleta del manual + inspiración Monet (toques sutiles)
+   ════════════════════════════════════════════════ */
+:root {
+  /* Paleta oficial */
+  --forest:    #0B3D2E;  /* verde bosque — primario */
+  --energy:    #2ECC71;  /* verde energía — acento */
+  --verde-cl:  #A3E4A9;  /* verde claro */
+  --petrol:    #1F3A5F;  /* azul petróleo */
+  --turquesa:  #1ABC9C;  /* turquesa barranquero */
+  --solar:     #F4D03F;  /* dorado sol */
+  --carbon:    #2C2C2C;  /* texto */
+  --gris:      #D5D8DC;  /* bordes */
+  --cream:     #F7F4EF;  /* fondo cálido (papel Monet) */
+  --white:     #FFFFFF;
+  --shadow-card: 0 4px 24px rgba(11,61,46,.10), 0 1px 4px rgba(0,0,0,.05);
+  --shadow-lift: 0 12px 40px rgba(11,61,46,.18), 0 2px 8px rgba(0,0,0,.07);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--cream);
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--carbon);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  /* Scrollbar con verde de marca */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--cream); }
+  ::-webkit-scrollbar-thumb { background: rgba(46,204,113,.55); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--energy); }
+
+  :focus-visible {
+    outline: 2px solid var(--energy);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Glassmorphism con tinte de marca */
+  .glass {
+    background: rgba(247,244,239,.80);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(46,204,113,.22);
+  }
+  .glass-dark {
+    background: rgba(11,61,46,.82);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(46,204,113,.28);
+  }
+
+  /* Eyebrow / kicker tipográfico */
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Inter', monospace;
+    font-size: .68rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--energy);
+  }
+
+  /* Tarjeta métrica reutilizable */
+  .metric-card {
+    background: var(--white);
+    border: 1px solid rgba(46,204,113,.18);
+    border-radius: 16px; padding: 20px;
+    box-shadow: var(--shadow-card);
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+  }
+  .metric-card:hover {
+    border-color: rgba(46,204,113,.4);
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
+  }
+}
+
+/* ─── Animaciones (inspiración Monet: movimiento suave) ─── */
+@keyframes breathe   { 0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.03);opacity:1} }
+@keyframes floatY    { 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
+@keyframes wIn       { from{opacity:0;filter:blur(6px);transform:translateY(12px)}to{opacity:1;filter:blur(0);transform:translateY(0)} }
+@keyframes shimBar   { from{background-position:-200% center}to{background-position:200% center} }
+
+.anim-in  { animation: wIn .8s cubic-bezier(.4,0,.2,1) both; }
+.anim-d1  { animation: wIn .8s cubic-bezier(.4,0,.2,1) .15s both; }
+.anim-d2  { animation: wIn .8s cubic-bezier(.4,0,.2,1) .30s both; }
+.anim-d3  { animation: wIn .8s cubic-bezier(.4,0,.2,1) .45s both; }
+.anim-breathe { animation: breathe 6s ease-in-out infinite; }
+.anim-float   { animation: floatY 5s ease-in-out infinite; }
+.shimmer-bar {
+  background: linear-gradient(90deg, var(--energy), var(--turquesa), var(--verde-cl));
+  background-size: 200% auto;
+  animation: shimBar 2.5s linear infinite;
+}
+
+/* ─── Leaflet con tinte cálido Monet ─── */
+.leaflet-container { background: #EDE8DE !important; }
+.leaflet-tile { filter: sepia(.18) saturate(.88) brightness(1.05); }
+.leaflet-popup-content-wrapper {
+  background: rgba(247,244,239,.97) !important;
+  border: 1px solid rgba(46,204,113,.35) !important;
+  color: var(--carbon) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 8px 32px rgba(11,61,46,.15) !important;
+}
+.leaflet-popup-tip { background: rgba(247,244,239,.97) !important; }
+.leaflet-control-attribution { display:none; }
+.leaflet-control-zoom a {
+  background: rgba(247,244,239,.95) !important;
+  color: var(--forest) !important;
+  border-color: rgba(46,204,113,.3) !important;
+}
+
+/* ─── Recharts con grid de marca ─── */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line { stroke: rgba(46,204,113,.15) !important; }
