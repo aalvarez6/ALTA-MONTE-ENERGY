@@ -1,6 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Mail, Phone, MapPin, Send } from 'lucide-react'
+
+// ⬇️ Pega aquí tu SITE KEY de Cloudflare Turnstile cuando la tengas.
+// Si la dejas vacía, el formulario funciona igual (sin captcha visible).
+const TURNSTILE_SITE_KEY = ''
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -8,28 +12,86 @@ const ContactPage = () => {
     email: '',
     telefono: '',
     asunto: '',
-    mensaje: ''
+    mensaje: '',
+    website: '', // honeypot: invisible para humanos, los bots lo llenan
   })
-  const [enviado, setEnviado] = useState(false)
+  // idle | enviando | ok | error
+  const [estado, setEstado] = useState('idle')
+  const [token, setToken] = useState('')
+  const widgetRef = useRef(null)
+
+  // Carga y renderiza el widget de Turnstile (solo si hay site key)
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY) return
+    const SCRIPT_ID = 'cf-turnstile-script'
+
+    const render = () => {
+      if (window.turnstile && widgetRef.current && !widgetRef.current.dataset.rendered) {
+        window.turnstile.render(widgetRef.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          callback: (t) => setToken(t),
+          'error-callback': () => setToken(''),
+          'expired-callback': () => setToken(''),
+        })
+        widgetRef.current.dataset.rendered = '1'
+      }
+    }
+
+    if (!document.getElementById(SCRIPT_ID)) {
+      const s = document.createElement('script')
+      s.id = SCRIPT_ID
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+      s.async = true
+      s.defer = true
+      s.onload = render
+      document.head.appendChild(s)
+    } else {
+      render()
+    }
+  }, [])
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!formData.nombre || !formData.email || !formData.mensaje) {
       alert('Por favor completa los campos requeridos')
       return
     }
-    
-    const asuntoSanitizado = formData.asunto || 'Consulta'
-    const body = `Nombre: ${formData.nombre}%0ATeléfono: ${formData.telefono}%0A%0A${formData.mensaje}`
-    window.location.href = `mailto:altamonteenergy@gmail.com?subject=${asuntoSanitizado}&body=${body}`
-    
-    setEnviado(true)
-    setTimeout(() => setEnviado(false), 5000)
+
+    setEstado('enviando')
+    try {
+      const r = await fetch('/api/contacto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          email: formData.email,
+          telefono: formData.telefono,
+          tipo: formData.asunto || 'Consulta', // tu "asunto" → "tipo" en la API
+          mensaje: formData.mensaje,
+          website: formData.website,           // honeypot
+          turnstileToken: token,
+          origen: 'Formulario web',
+        }),
+      })
+      if (!r.ok) throw new Error()
+
+      setEstado('ok')
+      setFormData({ nombre: '', email: '', telefono: '', asunto: '', mensaje: '', website: '' })
+      if (window.turnstile && TURNSTILE_SITE_KEY) {
+        window.turnstile.reset()
+        setToken('')
+      }
+      setTimeout(() => setEstado('idle'), 6000)
+    } catch {
+      setEstado('error')
+    }
   }
+
+  const enviando = estado === 'enviando'
 
   return (
     <div className="pt-16 min-h-screen bg-white">
@@ -160,17 +222,40 @@ const ContactPage = () => {
               ></textarea>
             </div>
 
+            {/* Honeypot antispam — invisible para humanos */}
+            <input
+              type="text"
+              name="website"
+              value={formData.website}
+              onChange={handleChange}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, width: 0 }}
+            />
+
+            {/* Captcha invisible de Cloudflare (solo si hay site key) */}
+            {TURNSTILE_SITE_KEY && <div ref={widgetRef} className="mb-6" />}
+
             <button
               type="submit"
-              className="w-full bg-[#2ecc71] text-[#0b3d2e] py-4 rounded-lg font-bold text-lg hover:bg-[#f4d03f] transition-all duration-300 flex items-center justify-center gap-2"
+              disabled={enviando}
+              className="w-full bg-[#2ecc71] text-[#0b3d2e] py-4 rounded-lg font-bold text-lg hover:bg-[#f4d03f] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Send className="w-5 h-5" />
-              Enviar mensaje
+              {enviando ? 'Enviando…' : 'Enviar mensaje'}
             </button>
 
-            {enviado && (
+            {estado === 'ok' && (
               <div className="mt-6 p-4 bg-[#f0fdf4] border border-[#2ecc71] text-[#0b3d2e] rounded-lg text-center font-semibold">
                 ✓ ¡Mensaje enviado! Te contactaremos en menos de 24 horas.
+              </div>
+            )}
+
+            {estado === 'error' && (
+              <div className="mt-6 p-4 bg-[#fef2f2] border border-[#ef4444] text-[#991b1b] rounded-lg text-center font-semibold">
+                No pudimos enviar tu mensaje. Escríbenos a{' '}
+                <a href="mailto:altamonteenergy@gmail.com" className="underline">altamonteenergy@gmail.com</a>
               </div>
             )}
           </form>
