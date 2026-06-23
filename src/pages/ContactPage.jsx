@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Mail, Phone, MapPin, Send } from 'lucide-react'
 
-// ⬇️ Pega aquí tu SITE KEY de Cloudflare Turnstile cuando la tengas.
-// Si la dejas vacía, el formulario funciona igual (sin captcha visible).
-const TURNSTILE_SITE_KEY = ''
+// ⬇️ Pega aquí la URL de tu App Web de Apps Script (la que registra en el Sheet)
+const SHEETS_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT'
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -13,42 +12,10 @@ const ContactPage = () => {
     telefono: '',
     asunto: '',
     mensaje: '',
-    website: '', // honeypot: invisible para humanos, los bots lo llenan
+    website: '', // honeypot antispam: invisible para humanos
   })
   // idle | enviando | ok | error
   const [estado, setEstado] = useState('idle')
-  const [token, setToken] = useState('')
-  const widgetRef = useRef(null)
-
-  // Carga y renderiza el widget de Turnstile (solo si hay site key)
-  useEffect(() => {
-    if (!TURNSTILE_SITE_KEY) return
-    const SCRIPT_ID = 'cf-turnstile-script'
-
-    const render = () => {
-      if (window.turnstile && widgetRef.current && !widgetRef.current.dataset.rendered) {
-        window.turnstile.render(widgetRef.current, {
-          sitekey: TURNSTILE_SITE_KEY,
-          callback: (t) => setToken(t),
-          'error-callback': () => setToken(''),
-          'expired-callback': () => setToken(''),
-        })
-        widgetRef.current.dataset.rendered = '1'
-      }
-    }
-
-    if (!document.getElementById(SCRIPT_ID)) {
-      const s = document.createElement('script')
-      s.id = SCRIPT_ID
-      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
-      s.async = true
-      s.defer = true
-      s.onload = render
-      document.head.appendChild(s)
-    } else {
-      render()
-    }
-  }, [])
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -60,31 +27,31 @@ const ContactPage = () => {
       alert('Por favor completa los campos requeridos')
       return
     }
+    if (formData.website) {
+      // Bot detectado: fingimos éxito y no registramos nada
+      setEstado('ok')
+      return
+    }
 
     setEstado('enviando')
     try {
-      const r = await fetch('/api/contacto', {
+      // no-cors + text/plain → evita el bloqueo CORS de Apps Script.
+      // La fila se escribe en el Sheet; asumimos éxito si no hay error de red.
+      await fetch(SHEETS_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
           nombre: formData.nombre,
           email: formData.email,
           telefono: formData.telefono,
-          tipo: formData.asunto || 'Consulta', // tu "asunto" → "tipo" en la API
-          mensaje: formData.mensaje,
-          website: formData.website,           // honeypot
-          turnstileToken: token,
+          asunto: formData.asunto || 'Consulta',
           origen: 'Formulario web',
+          mensaje: formData.mensaje,
         }),
       })
-      if (!r.ok) throw new Error()
-
       setEstado('ok')
       setFormData({ nombre: '', email: '', telefono: '', asunto: '', mensaje: '', website: '' })
-      if (window.turnstile && TURNSTILE_SITE_KEY) {
-        window.turnstile.reset()
-        setToken('')
-      }
       setTimeout(() => setEstado('idle'), 6000)
     } catch {
       setEstado('error')
@@ -222,7 +189,7 @@ const ContactPage = () => {
               ></textarea>
             </div>
 
-            {/* Honeypot antispam — invisible para humanos */}
+            {/* Honeypot — invisible para humanos */}
             <input
               type="text"
               name="website"
@@ -233,9 +200,6 @@ const ContactPage = () => {
               aria-hidden="true"
               style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, width: 0 }}
             />
-
-            {/* Captcha invisible de Cloudflare (solo si hay site key) */}
-            {TURNSTILE_SITE_KEY && <div ref={widgetRef} className="mb-6" />}
 
             <button
               type="submit"
