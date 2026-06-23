@@ -4,6 +4,7 @@ import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
 import './App.css'
+import ChatWidget from './ChatWidget'
 
 /* Lazy loading: cada página pesada se descarga solo cuando se visita.
    Esto reduce el peso inicial y acelera la carga del home. */
@@ -47,6 +48,15 @@ function App() {
         <Footer />
       </div>
     </Router>
+  )
+}
+
+function App() {
+  return (
+    <>
+      {/* ...tu <Router>, <Routes>, etc... */}
+      <ChatWidget />   {/* ← esta línea hace que el botón flotante aparezca en todas las páginas */}
+    </>
   )
 }
 
