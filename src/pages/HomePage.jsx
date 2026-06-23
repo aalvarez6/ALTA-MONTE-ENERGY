@@ -8,10 +8,10 @@ const IMG = {
   hero:        '/AM_Imagenes/Background.png',
   heroFallback:'/AM_Imagenes/AM_Background_placeholder.svg',
   logo:        '/AM_Imagenes/Logo_White(2)',
-  antes:       '/AM_Imagenes/Altos_de_la_torre_M. Espinosa',
-  despues:     '/AM_Imagenes/Altos de la torre_3.jpg',
-  antes_det:   '/AM_Imagenes/Altos_de_la_torre_3_ Decierto_Cediento',
-  despues_det: '/AM_Imagenes/Altos_de_la_torre_paneles_3'
+  antes:       '/AM_Imagenes/Altos_de_la_torre_M. Espinosa_1',
+  despues:     '/AM_Imagenes/Altos de la torre_paneles_GenIA_3.jpg',
+  antes_det:   '/AM_Imagenes/Altos_de_la_torre_Decierto_Cediento_3',
+  despues_det: '/AM_Imagenes/Altos_de_la_torre_GenIA_3'
 }
 
 const HomePage = () => {
