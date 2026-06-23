@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, Mail, Phone, MapPin, Send } from 'lucide-react'
 
 // ⬇️ Pega aquí la URL de tu App Web de Apps Script (la que registra en el Sheet)
-const SHEETS_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT'
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzvWoCF5WVw_XU97nz3Za41Ht681Y0k6kQgP58K1-McKgWLI77nELl6iOUYZxJOjFLEcQ/exec'
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
