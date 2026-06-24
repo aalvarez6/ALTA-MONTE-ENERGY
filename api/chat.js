@@ -1,132 +1,267 @@
-// ─────────────────────────────────────────────────────────────────────────
-//  api/chat.js  ·  Alta Monte Energy
-//  Función serverless de Vercel. El widget de chat le envía la conversación;
-//  esta función llama a Claude Haiku 4.5 (el modelo más económico) y devuelve
-//  la respuesta. La API key vive SOLO aquí (nunca en el navegador).
-//
-//  Requiere una variable de entorno en Vercel:
-//     ANTHROPIC_API_KEY = sk-ant-...   (obténla en console.anthropic.com)
-// ─────────────────────────────────────────────────────────────────────────
+import React, { useState, useRef, useEffect } from 'react'
 
-// 📚 BASE DE CONOCIMIENTO — edita/expande este texto con la info de tu proyecto.
-// (Más adelante esto se reemplaza por el texto extraído de tus PDFs e imágenes.)
-const CONOCIMIENTO = `
-ALTA MONTE ENERGY — iniciativa de energía renovable en Medellín, Colombia.
+// ⬇️ Misma URL de Apps Script que usas en ContactPage (para registrar leads del chat)
+const SHEETS_URL = 'PEGA_AQUI_TU_URL_DE_APPS_SCRIPT'
 
-QUÉ ES: Instala y opera "nodos" de energía distribuida (DER) en barrios de
-ladera de Medellín. No es solo poner paneles: es un sistema inteligente que
-genera, optimiza y comparte energía en la comunidad.
+const MAX_CHARS = 200
 
-PILOTO: "La Torre", en la Comuna 8 de Medellín.
+const T = {
+  es: {
+    title: 'Alma',
+    status: 'en línea',
+    pick: 'Elige tu idioma para empezar:',
+    greet: '¡Hola! 🌿 Soy Alma, la asistente de Alta Monte Energy. Pregúntame sobre nuestros nodos energéticos, la tecnología o cómo participar.',
+    placeholder: 'Escribe tu pregunta…',
+    leadBtn: 'Quiero que me contacten',
+    leadName: 'Tu nombre',
+    leadContact: 'Correo o WhatsApp',
+    leadSend: 'Enviar mis datos',
+    leadOk: '✓ ¡Listo! Te contactaremos pronto.',
+    errConn: 'Tengo problemas de conexión. Escríbenos a altamonteenergy@gmail.com 🌿',
+    suggestions: ['¿Cómo funciona un nodo?', '¿Cómo participo?', '¿Qué tecnología usan?'],
+  },
+  en: {
+    title: 'Alma',
+    status: 'online',
+    pick: 'Choose your language to start:',
+    greet: 'Hi! 🌿 I\'m Alma, the Alta Monte Energy assistant. Ask me about our energy nodes, the technology, or how to get involved.',
+    placeholder: 'Type your question…',
+    leadBtn: 'I\'d like to be contacted',
+    leadName: 'Your name',
+    leadContact: 'Email or WhatsApp',
+    leadSend: 'Send my info',
+    leadOk: '✓ Done! We\'ll reach out soon.',
+    errConn: 'I\'m having connection issues. Write to us at altamonteenergy@gmail.com 🌿',
+    suggestions: ['How does a node work?', 'How do I join?', 'What tech do you use?'],
+  },
+}
 
-TECNOLOGÍA (4 capas):
-- Generación: paneles solares + batería LFP comunitaria compartida.
-- IoT: sensores ESP32, LoRaWAN (sin depender de WiFi), Modbus RS485, MQTT local.
-- Gemelo digital: modelo en tiempo real del consumo, generación y batería
-  por nodo (InfluxDB + Grafana).
-- IA predictiva: pronóstico de demanda, despacho óptimo de energía y
-  detección de anomalías/fallas.
-- Dashboard web + alertas de ahorro y avisos por WhatsApp a cada hogar.
+/* Alma — barranquero estilizado en la paleta de marca */
+function Alma({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <circle cx="42" cy="22" r="20" fill="#F4D03F" opacity="0.12" />
+      <path d="M10 46 L2 58 L18 50 Z" fill="#1F3A5F" />
+      <path d="M16 48 C12 32 24 22 38 24 C52 26 56 38 50 46 C45 53 36 54 28 53 C22 52 18 51 16 48 Z" fill="#1ABC9C" />
+      <path d="M20 46 C22 40 30 38 37 40 C33 49 25 49 20 46 Z" fill="#A3E4A9" opacity="0.9" />
+      <path d="M28 34 C37 33 46 37 49 44 C43 47 33 46 27 41 C25 38 25 35 28 34 Z" fill="#2ECC71" />
+      <circle cx="45" cy="26" r="10" fill="#1ABC9C" />
+      <path d="M40 22 C44 19 51 20 54 24" stroke="#0B3D2E" strokeWidth="3.5" strokeLinecap="round" />
+      <circle cx="47.5" cy="25" r="2" fill="#0B3D2E" />
+      <path d="M54 27 L63 29.5 L54 32 Z" fill="#F4D03F" />
+    </svg>
+  )
+}
 
-MODELO DE NEGOCIO: Energía como Servicio (EaaS). La comunidad accede a energía
-solar compartida sin costo inicial; se paga por consumo real (kWh), con
-transparencia total vía WhatsApp.
+export default function ChatWidget() {
+  const [open, setOpen] = useState(false)
+  const [lang, setLang] = useState(null) // null | 'es' | 'en'
+  const [messages, setMessages] = useState([]) // {role:'user'|'assistant', content}
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showLead, setShowLead] = useState(false)
+  const [lead, setLead] = useState({ nombre: '', contacto: '' })
+  const [leadSent, setLeadSent] = useState(false)
+  const scrollRef = useRef(null)
 
-BENEFICIOS: menor dependencia de la red, respaldo ante cortes del servicio,
-visibilidad del consumo de cada familia, y derechos energéticos distribuidos.
+  const t = T[lang || 'es']
 
-INSTALACIÓN: de 6 a 12 semanas según el tamaño del proyecto (evaluación
-estructural, permisos, instalación de paneles/batería/IoT y capacitación).
-El equipo coordina los trámites con EPM y la administración local.
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  }, [messages, loading, open, lang])
 
-ODS QUE ABORDA: 7 (energía limpia), 10 (reducción de desigualdades),
-11 (ciudades sostenibles), 13 (acción por el clima).
-
-ALIADOS POTENCIALES: EPM, Ruta N, Universidad Nacional (UNAL), UdeA, SIATA.
-
-CONTACTO: altamonteenergy@gmail.com · WhatsApp +57 304 588 6447 · Medellín, Colombia.
-
-NOTA: el proyecto está en etapa temprana (piloto). Evita dar cifras exactas de
-ahorro o generación; si no tienes el dato, dilo y remite al correo.
-`
-
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' })
-
-  try {
-    const { messages, idioma } = req.body || {}
-    if (!Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({ error: 'Sin mensajes' })
+  const send = async (text) => {
+    const q = (text ?? input).trim()
+    if (!q || loading) return
+    const next = [...messages, { role: 'user', content: q.slice(0, MAX_CHARS) }]
+    setMessages(next)
+    setInput('')
+    setLoading(true)
+    try {
+      const r = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: next, idioma: lang }),
+      })
+      const data = await r.json()
+      const reply = data.reply || t.errConn
+      setMessages((m) => [...m, { role: 'assistant', content: reply }])
+    } catch {
+      setMessages((m) => [...m, { role: 'assistant', content: t.errConn }])
+    } finally {
+      setLoading(false)
     }
-
-    // Anti-abuso: longitud de conversación
-    if (messages.length > 20) {
-      return res.status(400).json({ reply: 'Hemos hablado bastante 😊 Para más detalle, escríbenos a altamonteenergy@gmail.com' })
-    }
-
-    // Límite de 200 caracteres en la última pregunta del usuario
-    const last = messages[messages.length - 1]
-    if (last?.role === 'user' && (last.content || '').length > 200) {
-      return res.status(400).json({ reply: 'Por favor, haz tu pregunta en 200 caracteres o menos 🙏' })
-    }
-
-    if (!process.env.ANTHROPIC_API_KEY) {
-      return res.status(500).json({ reply: 'El asistente no está configurado todavía. Escríbenos a altamonteenergy@gmail.com' })
-    }
-
-    const lenguaje = idioma === 'en' ? 'English' : 'Spanish'
-
-    const system = [
-      {
-        type: 'text',
-        text:
-          `You are the virtual assistant for Alta Monte Energy, a community renewable-energy ` +
-          `initiative in Medellín, Colombia.\n` +
-          `RULES:\n` +
-          `- Reply ONLY in ${lenguaje}, regardless of the language of the question.\n` +
-          `- Answer ONLY questions about the Alta Monte project. If asked about anything ` +
-          `unrelated, politely steer back to the project.\n` +
-          `- Be warm, concise and clear (max 3 short paragraphs).\n` +
-          `- If you don't know something or it's not in the documentation, say so honestly ` +
-          `and invite them to email altamonteenergy@gmail.com. Never invent figures.\n`,
-      },
-      {
-        type: 'text',
-        text: `DOCUMENTATION:\n${CONOCIMIENTO}`,
-        cache_control: { type: 'ephemeral' }, // prompt caching → ~90% más barato
-      },
-    ]
-
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5',
-        max_tokens: 500,
-        system,
-        messages: messages.map((m) => ({ role: m.role, content: String(m.content || '').slice(0, 200) })),
-      }),
-    })
-
-    const data = await resp.json()
-    if (!resp.ok) {
-      console.error('[chat] Anthropic error:', data)
-      return res.status(502).json({ reply: 'El asistente no está disponible ahora. Escríbenos a altamonteenergy@gmail.com' })
-    }
-
-    const reply = (data.content || [])
-      .filter((b) => b.type === 'text')
-      .map((b) => b.text)
-      .join('\n')
-      .trim() || 'No pude procesar tu pregunta. Escríbenos a altamonteenergy@gmail.com'
-
-    return res.status(200).json({ reply })
-  } catch (err) {
-    console.error('[chat] Error inesperado:', err)
-    return res.status(500).json({ reply: 'Error del servidor. Escríbenos a altamonteenergy@gmail.com' })
   }
+
+  const enviarLead = async () => {
+    if (!lead.nombre || !lead.contacto) return
+    try {
+      await fetch(SHEETS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          nombre: lead.nombre,
+          email: lead.contacto,
+          telefono: '',
+          asunto: 'Lead desde chat',
+          origen: 'Chat',
+          mensaje: 'Solicitó contacto desde el chatbot Alma',
+        }),
+      })
+      setLeadSent(true)
+      setTimeout(() => { setShowLead(false); setLeadSent(false); setLead({ nombre: '', contacto: '' }) }, 3000)
+    } catch {
+      setLeadSent(true) // no-cors: asumimos éxito
+    }
+  }
+
+  return (
+    <>
+      <style>{`
+        @keyframes alma-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(46,204,113,.45) }
+          70% { box-shadow: 0 0 0 12px rgba(46,204,113,0) }
+          100% { box-shadow: 0 0 0 0 rgba(46,204,113,0) }
+        }
+        .alma-fab { transition: transform .2s ease; animation: alma-pulse 2.6s infinite; }
+        .alma-fab:hover { transform: scale(1.08); }
+      `}</style>
+
+      {/* Botón flotante */}
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="alma-fab"
+        aria-label="Abrir chat con Alma"
+        style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 1000,
+          width: 62, height: 62, borderRadius: '50%',
+          background: '#0B3D2E', border: '2px solid #1ABC9C',
+          boxShadow: '0 8px 24px rgba(11,61,46,.35)', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        <Alma size={34} />
+      </button>
+
+      {/* Ventana de chat */}
+      {open && (
+        <div
+          role="dialog"
+          aria-label="Chat con Alma"
+          style={{
+            position: 'fixed', bottom: 98, right: 24, zIndex: 1000,
+            width: 'min(370px, calc(100vw - 32px))',
+            background: '#fff', borderRadius: 16, overflow: 'hidden',
+            boxShadow: '0 20px 60px rgba(11,61,46,.25)',
+            border: '1px solid rgba(11,61,46,.08)',
+            display: 'flex', flexDirection: 'column', maxHeight: '70vh',
+            fontFamily: 'Inter, system-ui, sans-serif',
+          }}
+        >
+          {/* Header */}
+          <div style={{ background: '#0B3D2E', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(26,188,156,.18)', border: '1px solid rgba(26,188,156,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Alma size={24} />
+              </div>
+              <div>
+                <div style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>{t.title}</div>
+                <div style={{ color: '#2ECC71', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#2ECC71', display: 'inline-block' }} />
+                  {t.status}
+                </div>
+              </div>
+            </div>
+            <button onClick={() => setOpen(false)} aria-label="Cerrar chat" style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,.6)', fontSize: 18, cursor: 'pointer' }}>✕</button>
+          </div>
+
+          {/* Selector de idioma */}
+          {!lang ? (
+            <div style={{ padding: 24, textAlign: 'center', background: '#fafafa' }}>
+              <p style={{ color: '#0B3D2E', fontSize: 14, marginBottom: 16 }}>🌐 {T.es.pick}<br />{T.en.pick}</p>
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                <button onClick={() => setLang('es')} style={btnStyle}>Español</button>
+                <button onClick={() => setLang('en')} style={btnStyle}>English</button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Mensajes */}
+              <div ref={scrollRef} style={{ flex: 1, padding: 16, overflowY: 'auto', background: '#fafafa', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <Bubble role="assistant">{t.greet}</Bubble>
+                {messages.map((m, i) => <Bubble key={i} role={m.role}>{m.content}</Bubble>)}
+                {loading && <Bubble role="assistant"><span style={{ opacity: .5 }}>···</span></Bubble>}
+
+                {/* Captura de lead */}
+                {!showLead ? (
+                  <button onClick={() => setShowLead(true)} style={{ alignSelf: 'flex-start', fontSize: 12, color: '#0B3D2E', background: '#fff', border: '1px solid rgba(11,61,46,.15)', borderRadius: 16, padding: '5px 12px', cursor: 'pointer' }}>
+                    📇 {t.leadBtn}
+                  </button>
+                ) : leadSent ? (
+                  <div style={{ alignSelf: 'flex-start', fontSize: 13, color: '#0B3D2E', background: '#f0fdf4', border: '1px solid #2ECC71', borderRadius: 10, padding: '8px 12px' }}>{t.leadOk}</div>
+                ) : (
+                  <div style={{ background: '#fff', border: '1px solid rgba(11,61,46,.12)', borderRadius: 12, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <input value={lead.nombre} onChange={(e) => setLead({ ...lead, nombre: e.target.value })} placeholder={t.leadName} style={leadInput} />
+                    <input value={lead.contacto} onChange={(e) => setLead({ ...lead, contacto: e.target.value })} placeholder={t.leadContact} style={leadInput} />
+                    <button onClick={enviarLead} style={{ ...btnStyle, padding: '8px 14px' }}>{t.leadSend}</button>
+                  </div>
+                )}
+              </div>
+
+              {/* Sugerencias */}
+              {messages.length === 0 && (
+                <div style={{ padding: '8px 14px', display: 'flex', gap: 6, flexWrap: 'wrap', borderTop: '1px solid rgba(11,61,46,.06)', background: '#fff' }}>
+                  {t.suggestions.map((s, i) => (
+                    <button key={i} onClick={() => send(s)} style={{ fontSize: 11, padding: '4px 10px', borderRadius: 12, cursor: 'pointer', background: '#F7F4EF', border: '1px solid rgba(11,61,46,.1)', color: '#0B3D2E' }}>{s}</button>
+                  ))}
+                </div>
+              )}
+
+              {/* Input */}
+              <div style={{ padding: 12, borderTop: '1px solid rgba(11,61,46,.08)', background: '#fff' }}>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    value={input}
+                    maxLength={MAX_CHARS}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') send() }}
+                    placeholder={t.placeholder}
+                    aria-label={t.placeholder}
+                    style={{ flex: 1, padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(11,61,46,.15)', fontSize: 13, outline: 'none', background: '#F7F4EF' }}
+                  />
+                  <button onClick={() => send()} disabled={loading} aria-label="Enviar" style={{ ...btnStyle, width: 40, padding: 0, opacity: loading ? .6 : 1 }}>➤</button>
+                </div>
+                <div style={{ textAlign: 'right', fontSize: 10, color: '#9aa89e', marginTop: 4 }}>{input.length}/{MAX_CHARS}</div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </>
+  )
+}
+
+function Bubble({ role, children }) {
+  const isUser = role === 'user'
+  return (
+    <div style={{ alignSelf: isUser ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
+      <div style={{
+        padding: '10px 13px', fontSize: 13, lineHeight: 1.5,
+        background: isUser ? '#0B3D2E' : '#fff',
+        color: isUser ? '#fff' : '#0B3D2E',
+        border: isUser ? 'none' : '1px solid rgba(11,61,46,.1)',
+        borderRadius: isUser ? '12px 4px 12px 12px' : '4px 12px 12px 12px',
+        whiteSpace: 'pre-wrap',
+      }}>{children}</div>
+    </div>
+  )
+}
+
+const btnStyle = {
+  background: '#2ECC71', color: '#0B3D2E', border: 'none',
+  borderRadius: 8, padding: '9px 16px', fontWeight: 700, fontSize: 13, cursor: 'pointer',
+}
+const leadInput = {
+  padding: '8px 10px', borderRadius: 6, border: '1px solid rgba(11,61,46,.15)', fontSize: 13, outline: 'none',
 }
