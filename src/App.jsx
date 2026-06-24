@@ -46,17 +46,9 @@ function App() {
           </Suspense>
         </main>
         <Footer />
+        <ChatWidget />   {/* botón flotante visible en todas las páginas */}
       </div>
     </Router>
-  )
-}
-
-function App() {
-  return (
-    <>
-      {/* ...tu <Router>, <Routes>, etc... */}
-      <ChatWidget />   {/* ← esta línea hace que el botón flotante aparezca en todas las páginas */}
-    </>
   )
 }
 
