@@ -242,11 +242,11 @@ const HomePage = () => {
         <div className="carta-inner">
           <div className="sk">Propósito y misión</div>
           <h2>¿Quiénes somos?</h2>
-          <p className="sub">Una iniciativa de impacto real que combina tecnología, comunidad e inteligencia para transformar la energía en Medellín.</p>
+          <p className="sub">Una iniciativa de impacto real que combina tecnología, comunidad e inteligencia Artificial para transformar la energía en Medellín.</p>
           <div className="carta">
             <div className="cl">
               <div className="cl-hd"><span>🌿</span> Nuestro propósito</div>
-              <p className="cl-b">Impulsar la transición energética en las alturas de Medellín, combinando tecnología, inteligencia y comunidad para un futuro más justo y sostenible.</p>
+              <p className="cl-b">Impulsar la transición energética en las alturas de Medellín, combinando tecnología, Sostenibilidad y comunidad para un futuro más justo y sostenible.</p>
               <div className="cl-hd"><span>⚙</span> Lo que hacemos</div>
               <p className="cl-b">Instalamos y operamos nodos energéticos comunitarios, modelamos barrios con gemelos digitales y optimizamos la energía con inteligencia artificial.</p>
               <div className="cl-hd"><span>🌱</span> Nuestro impacto</div>
@@ -322,7 +322,7 @@ const HomePage = () => {
         <div className="sec-hdr">
           <div className="sk center">Compromisos globales</div>
           <h2>Objetivos de Desarrollo<br />Sostenible que cumplimos</h2>
-          <p className="sub" style={{ margin: '12px auto 0', textAlign: 'center' }}>
+          <p className="sub" style={{ margin: '10px auto 0', textAlign: 'center' }}>
             Alta Monte Energy no es solo un negocio de energía — es una plataforma de impacto alineada con la Agenda 2030 de la ONU.
           </p>
         </div>
