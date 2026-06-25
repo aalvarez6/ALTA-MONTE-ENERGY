@@ -18,77 +18,58 @@
    Coordenadas reales aproximadas de comunas de ladera. */
 export const NODOS = [
   {
-    id: 'AM-001',
-    nombre: 'La Torre',
+    id: 'la-torre-c8',
+    nombre: 'Nodo La Torre',
     comuna: 'Comuna 8 · Villa Hermosa',
-    estado: 'Construccion',          // activo | construccion | planeado
-    lat: 6.2510,
+    estado: 'planeado',
+    lat: 6.2518,
+    lng: -75.5380,
+    descripcion: 'Primer nodo piloto. Solar distribuido + batería comunitaria + gemelo digital.',
+  },
+  {
+    id: 'popular-c1',
+    nombre: 'Nodo Popular',
+    comuna: 'Comuna 1 · Popular',
+    estado: 'ideacion',
+    lat: 6.2960,
     lng: -75.5450,
-    familias: 48,
-    panelesKw: 32,
-    bateriaKwh: 60,
-    descripcion: 'Nodo piloto. Primer despliegue completo con IoT real.'
+    descripcion: 'En ideación. Evaluación de comunidad y techos disponibles.',
   },
   {
-    id: 'AM-002',
-    nombre: 'El Pinal',
-    comuna: 'Comuna 8 · Villa Hermosa',
-    estado: 'planeado',
-    lat: 6.2486,
-    lng: -75.5388,
-    familias: 36,
-    panelesKw: 24,
-    bateriaKwh: 45,
-    descripcion: 'En instalación de paneles y batería comunitaria.'
-  },
-  {
-    id: 'AM-003',
-    nombre: 'Llanaditas',
-    comuna: 'Comuna 8 · Villa Hermosa',
-    estado: 'planeado',
-    lat: 6.2453,
-    lng: -75.5331,
-    familias: 52,
-    panelesKw: 40,
-    bateriaKwh: 75,
-    descripcion: 'Estudio estructural en curso. Inicio previsto Q3 2026.'
-  },
-  {
-    id: 'AM-004',
-    nombre: 'Carambolas',
+    id: 'manrique-c3',
+    nombre: 'Nodo Manrique',
     comuna: 'Comuna 3 · Manrique',
-    estado: 'planeado',
-    lat: 6.2718,
-    lng: -75.5402,
-    familias: 41,
-    panelesKw: 28,
-    bateriaKwh: 50,
-    descripcion: 'Alianza comunitaria en evaluación con la JAC local.'
+    estado: 'ideacion',
+    lat: 6.2780,
+    lng: -75.5500,
+    descripcion: 'En ideación. Identificación de aliados locales.',
   },
   {
-    id: 'AM-005',
-    nombre: 'El Faro',
-    comuna: 'Comuna 8 · Villa Hermosa',
-    estado: 'planeado',
-    lat: 6.2398,
-    lng: -75.5295,
-    familias: 38,
-    panelesKw: 26,
-    bateriaKwh: 48,
-    descripcion: 'Expansión del corredor energético de la Comuna 8.'
-  }
+    id: 'san-javier-c13',
+    nombre: 'Nodo San Javier',
+    comuna: 'Comuna 13 · San Javier',
+    estado: 'ideacion',
+    lat: 6.2560,
+    lng: -75.6150,
+    descripcion: 'En ideación. Potencial alto por comunidad organizada.',
+  },
+  {
+    id: 'doce-octubre-c6',
+    nombre: 'Nodo Doce de Octubre',
+    comuna: 'Comuna 6 · Doce de Octubre',
+    estado: 'ideacion',
+    lat: 6.2950,
+    lng: -75.5800,
+    descripcion: 'En ideación. Mapeo inicial de demanda energética.',
+  },
 ]
 
-/* ── KPIs del dashboard (estado agregado del nodo activo) ── */
-export function getKpis() {
-  return {
-    generacionKw: 21.4,      // potencia instantánea generada
-    consumoKw: 14.8,         // consumo instantáneo
-    bateriaPct: 78,          // % de carga de la batería
-    excedenteKw: 6.6,        // potencia enviada a la red / compartida
-    co2EvitadoKg: 312,       // CO2 evitado hoy
-    familiasActivas: 48
-  }
+// Centro del mapa (Medellín) y configuración de estados
+export const MEDELLIN_CENTER = { lat: 6.2476, lng: -75.5658 }
+
+export const ESTADO_CONFIG = {
+  planeado: { label: 'Planeado', color: '#2ECC71' },
+  ideacion: { label: 'En ideación', color: '#F4D03F' },
 }
 
 /* ── Serie de 24h: generación vs consumo (para gráfica de líneas) ──
