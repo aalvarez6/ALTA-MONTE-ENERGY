@@ -1,10 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────
 //  api/chat.mjs  ·  Alta Monte Energy  ·  Asistente "Alma"
-//  Función serverless de Vercel. Extensión .mjs = se carga siempre como ESM
-//  (evita el error FUNCTION_INVOCATION_FAILED por choque de módulos).
-//
-//  Requiere una variable de entorno en Vercel:
-//     ANTHROPIC_API_KEY = sk-ant-...   (de console.anthropic.com, con saldo)
+//  Requiere en Vercel: ANTHROPIC_API_KEY = sk-ant-...  (con saldo)
 // ─────────────────────────────────────────────────────────────────────────
 
 // 📚 BASE DE CONOCIMIENTO — edita/expande con la info de tu proyecto.
@@ -17,32 +13,27 @@ genera, optimiza y comparte energía en la comunidad.
 
 PILOTO: "La Torre", en la Comuna 8 de Medellín.
 
-TECNOLOGÍA (4 capas):
-- Generación: paneles solares + batería LFP comunitaria compartida.
-- IoT: sensores ESP32, LoRaWAN (sin depender de WiFi), Modbus RS485, MQTT local.
-- Gemelo digital: modelo en tiempo real del consumo, generación y batería
-  por nodo (InfluxDB + Grafana).
-- IA predictiva: pronóstico de demanda, despacho óptimo de energía y
-  detección de anomalías/fallas.
-- Dashboard web + alertas de ahorro y avisos por WhatsApp a cada hogar.
+TECNOLOGÍA: paneles solares + batería LFP comunitaria; IoT con ESP32, LoRaWAN,
+Modbus RS485 y MQTT; gemelo digital (InfluxDB + Grafana); IA predictiva para
+pronóstico de demanda, despacho óptimo y detección de fallas; dashboard web y
+alertas por WhatsApp a cada hogar.
 
 MODELO DE NEGOCIO: Energía como Servicio (EaaS). La comunidad accede a energía
 solar compartida sin costo inicial; se paga por consumo real (kWh), con
 transparencia total vía WhatsApp.
 
-BENEFICIOS: menor dependencia de la red, respaldo ante cortes del servicio,
-visibilidad del consumo de cada familia, y derechos energéticos distribuidos.
+BENEFICIOS: menor dependencia de la red, respaldo ante cortes, visibilidad del
+consumo de cada familia, y derechos energéticos distribuidos.
 
-INSTALACIÓN: de 6 a 12 semanas según el tamaño del proyecto (evaluación
-estructural, permisos, instalación de paneles/batería/IoT y capacitación).
-El equipo coordina los trámites con EPM y la administración local.
+INSTALACIÓN: de 6 a 12 semanas según el proyecto. El equipo coordina los
+trámites con EPM y la administración local.
 
-ODS QUE ABORDA: 7 (energía limpia), 10 (reducción de desigualdades),
-11 (ciudades sostenibles), 13 (acción por el clima).
+ODS: 7 (energía limpia), 10 (reducción de desigualdades), 11 (ciudades
+sostenibles), 13 (acción por el clima).
 
 ALIADOS POTENCIALES: EPM, Ruta N, Universidad Nacional (UNAL), UdeA, SIATA.
 
-CONTACTO: altamonteenergy@gmail.com · WhatsApp +57 304 588 6447 · Medellín, Colombia.
+CONTACTO: altamonteenergy@gmail.com · WhatsApp +57 304 588 6447 · Medellín.
 
 NOTA: el proyecto está en etapa temprana (piloto). Evita dar cifras exactas de
 ahorro o generación; si no tienes el dato, dilo y remite al correo.
@@ -72,25 +63,22 @@ export default async function handler(req, res) {
 
     const lenguaje = idioma === 'en' ? 'English' : 'Spanish'
 
+    const reglas =
+      `You are Alma, the friendly virtual assistant for Alta Monte Energy, a community ` +
+      `renewable-energy initiative in Medellín, Colombia.\n` +
+      `RULES:\n` +
+      `- Reply ONLY in ${lenguaje}, regardless of the language of the question.\n` +
+      `- Answer ONLY questions about the Alta Monte project. If asked about anything ` +
+      `unrelated, politely steer back to the project.\n` +
+      `- Be warm, concise and clear (max 3 short paragraphs).\n` +
+      `- Respond in plain, natural text, like a real person speaking. Do NOT use markdown, ` +
+      `asterisks (*), bullet symbols, hashes (#) or any formatting symbols. Just normal sentences.\n` +
+      `- If you don't know something or it's not in the documentation, say so honestly and ` +
+      `invite them to email altamonteenergy@gmail.com. Never invent figures.\n`
+
     const system = [
-      {
-        type: 'text',
-        text:
-          `You are Alma, the friendly virtual assistant for Alta Monte Energy, a community ` +
-          `renewable-energy initiative in Medellín, Colombia.\n` +
-          `RULES:\n` +
-          `- Reply ONLY in ${lenguaje}, regardless of the language of the question.\n` +
-          `- Answer ONLY questions about the Alta Monte project. If asked about anything ` +
-          `unrelated, politely steer back to the project.\n` +
-          `- Be warm, concise and clear (max 3 short paragraphs).\n` +
-          `- If you don't know something or it's not in the documentation, say so honestly ` +
-          `and invite them to email altamonteenergy@gmail.com. Never invent figures.\n`,
-      },
-      {
-        type: 'text',
-        text: `DOCUMENTATION:\n${CONOCIMIENTO}`,
-        cache_control: { type: 'ephemeral' },
-      },
+      { type: 'text', text: reglas },
+      { type: 'text', text: `DOCUMENTATION:\n${CONOCIMIENTO}`, cache_control: { type: 'ephemeral' } },
     ]
 
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
