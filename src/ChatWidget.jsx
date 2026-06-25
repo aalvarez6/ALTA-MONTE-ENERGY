@@ -7,10 +7,10 @@ const MAX_CHARS = 200
 
 const T = {
   es: {
-    title: 'Asistente Alta Monte',
+    title: 'Alma',
     status: 'en línea',
     pick: 'Elige tu idioma para empezar:',
-    greet: '¡Hola! 🌿 Soy el asistente de Alta Monte Energy. Pregúntame sobre nuestros nodos energéticos, la tecnología o cómo participar.',
+    greet: '¡Hola! 🌿 Soy Alma de Alta Monte Energy. Pregúntame sobre nuestros nodos energéticos, la tecnología o cómo participar.',
     placeholder: 'Escribe tu pregunta…',
     leadBtn: 'Quiero que me contacten',
     leadName: 'Tu nombre',
@@ -21,10 +21,10 @@ const T = {
     suggestions: ['¿Cómo funciona un nodo?', '¿Cómo participo?', '¿Qué tecnología usan?'],
   },
   en: {
-    title: 'Alta Monte Assistant',
+    title: 'Alma',
     status: 'online',
     pick: 'Choose your language to start:',
-    greet: 'Hi! 🌿 I\'m the Alta Monte Energy assistant. Ask me about our energy nodes, the technology, or how to get involved.',
+    greet: 'Hi! 🌿 I\'m Alma the Alta Monte Energy. Ask me about our energy nodes, the technology, or how to get involved.',
     placeholder: 'Type your question…',
     leadBtn: 'I\'d like to be contacted',
     leadName: 'Your name',
