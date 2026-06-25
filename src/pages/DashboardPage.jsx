@@ -6,6 +6,8 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, Legend
 } from 'recharts'
 import { getKpis, getCurva24h, getDistribucion, getAporteFamilias, getAlertas } from '../data/mockData'
+import EnergyDashboard from '../components/EnergyDashboard'
+import NodosMap from '../components/NodosMap'
 
 const KpiCard = ({ icon: Icon, label, value, unit, accent }) => (
   <div className="bg-white rounded-2xl p-6 border border-[#2ecc71]/15 shadow-sm hover:shadow-lg transition-shadow">
