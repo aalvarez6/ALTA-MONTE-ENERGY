@@ -229,6 +229,15 @@ function Bubble({ role, children }) {
     </div>
   )
 }
+function limpiarTexto(t) {
+  return String(t || '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')   // quita **negritas**
+    .replace(/\*(.*?)\*/g, '$1')       // quita *cursivas*
+    .replace(/^#{1,6}\s+/gm, '')       // quita # encabezados
+    .replace(/^\s*[-*•]\s+/gm, '• ')   // listas → punto simple
+    .replace(/`{1,3}/g, '')            // quita backticks
+    .trim()
+}
 
 const btnStyle = {
   background: '#2ECC71', color: '#0B3D2E', border: 'none',
