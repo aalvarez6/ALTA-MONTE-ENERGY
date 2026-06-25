@@ -126,6 +126,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ reply: 'Error del servidor. Escríbenos a altamonteenergy@gmail.com' })
   }
 }
-
-
-     
