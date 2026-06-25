@@ -67,7 +67,7 @@ export default function ChatWidget() {
         body: JSON.stringify({ messages: next, idioma: lang }),
       })
       const data = await r.json()
-      const reply = data.reply || t.errConn
+      const reply = limpiarTexto(data.reply) || t.errConn
       setMessages((m) => [...m, { role: 'assistant', content: reply }])
     } catch {
       setMessages((m) => [...m, { role: 'assistant', content: t.errConn }])
