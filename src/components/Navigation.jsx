@@ -36,7 +36,7 @@ const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <img
-              src="/AM_Imagenes/Logo_White(2)"
+              src="/AM_Imagenes/Logo_White (2).png"
               alt="Alta Monte Energy"
               className="h-10 w-auto"
               onError={(e) => {
