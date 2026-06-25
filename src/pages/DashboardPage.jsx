@@ -1,68 +1,190 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Activity, Sun, Battery, Gauge } from 'lucide-react'
-import EnergyDashboard from '../components/EnergyDashboard'
+import { useState, useEffect, useMemo } from 'react'
+import {
+  AreaChart, Area, BarChart, Bar, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+} from 'recharts'
+import { generate24h, COMMUNE_DATA } from '../data/simulatedData'
 
-const DashboardPage = () => {
+// ── Datos solares REALES de Medellín (Open-Meteo · gratis, sin key) ──
+const LAT = 6.2442, LNG = -75.5812
+const KWP = 32, FACTOR = 0.88 // potencia del nodo La Torre · ajusta si quieres
+const SOLAR_API = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LNG}` +
+  `&hourly=shortwave_radiation&timezone=America%2FBogota&forecast_days=1`
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
   return (
-    <div className="pt-16 min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Link to="/" className="inline-flex items-center gap-2 text-[#2ecc71] hover:text-[#f4d03f] transition-colors mb-8 font-semibold">
-          <ArrowLeft className="w-4 h-4" />
-          Volver al inicio
-        </Link>
+    <div className="bg-white rounded-xl p-3 border border-[rgba(123,174,138,.25)] shadow-card text-xs font-mono">
+      <p className="text-gray-400 mb-2">{label}</p>
+      {payload.map((p, i) => (
+        <div key={i} className="flex items-center gap-2 mb-0.5">
+          <div className="w-2 h-2 rounded-full" style={{ background:p.color }}/>
+          <span className="text-gray-500">{p.name}:</span>
+          <span className="text-carbon font-semibold">{p.value} kW</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
-        {/* Encabezado */}
-        <div className="mb-12">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-widest text-[#2ecc71] uppercase mb-3">
-            <Activity className="w-4 h-4" /> Gemelo digital
+export default function Dashboard() {
+  const [sim, setSim] = useState(generate24h())
+  const [realSolar, setRealSolar] = useState(null) // array 24h en kW, o null
+  const [tab, setTab] = useState('generacion')
+
+  // Trae la curva solar real una vez al cargar
+  useEffect(() => {
+    fetch(SOLAR_API)
+      .then((r) => r.json())
+      .then((j) => {
+        const rad = j.hourly?.shortwave_radiation || []
+        const kw = rad.slice(0, 24).map((v) => +(((v || 0) / 1000) * KWP * FACTOR).toFixed(1))
+        if (kw.length) setRealSolar(kw)
+      })
+      .catch(() => {}) // si falla, se queda con la solar simulada
+  }, [])
+
+  // Refresca la parte simulada (consumo) cada 8s
+  useEffect(() => {
+    const id = setInterval(() => setSim(generate24h()), 8000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Combina: solar REAL + consumo simulado; balance recalculado con solar real
+  const data = useMemo(() => {
+    return sim.map((row, i) => {
+      if (!realSolar) return row
+      const solar = realSolar[i] ?? row.solar
+      return { ...row, solar, balance: +(solar - (row.consumption ?? 0)).toFixed(1) }
+    })
+  }, [sim, realSolar])
+
+  const tabs = [
+    { id:'generacion', label:'Generación & Consumo' },
+    { id:'comunas',    label:'Demanda por Comuna' },
+    { id:'balance',    label:'Balance Energético' },
+  ]
+
+  return (
+    <section id="dashboard" className="py-20 bg-niebla">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
+          <div>
+            <span className="eyebrow block mb-3">dashboard energético</span>
+            <h2 style={{ fontFamily:'"Cormorant Garamond",serif', fontSize:'clamp(1.9rem,4vw,2.9rem)', fontWeight:400, lineHeight:1.2, color:'#2C2C2C' }}>
+              Monitoreo <em style={{ fontStyle:'italic', color:'#7BAE8A' }}>en tiempo real</em>
+            </h2>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-[#0b3d2e] mb-4">Dashboard energético</h1>
-          <p className="text-lg text-[#5a7a6a] max-w-3xl">
-            Visualiza el recurso solar de Medellín en tiempo real y la energía que un nodo
-            como La Torre podría generar. Cuando el IoT esté en operación, estos paneles
-            mostrarán los datos reales de cada nodo.
-          </p>
+          <div className="flex flex-col items-start sm:items-end gap-1.5 text-xs font-mono text-gray-400">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full anim-pulse" style={{ background:'#7BAE8A' }}/>
+              Actualizando cada 8s
+            </div>
+            {realSolar && (
+              <div className="flex items-center gap-2" style={{ color:'#C9A96E' }}>
+                <span>☀</span> Solar real · Open-Meteo
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Dashboard solar con datos reales */}
-        <div className="mb-12">
-          <EnergyDashboard />
+        {/* Tab pills */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {tabs.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+                    className={`px-4 py-2 rounded-lg text-xs font-mono transition-all duration-200 ${
+                      tab === t.id
+                        ? 'text-white'
+                        : 'bg-white border border-[rgba(123,174,138,.2)] text-gray-400 hover:text-musgo'
+                    }`}
+                    style={ tab === t.id
+                      ? { background:'linear-gradient(135deg,#7BAE8A,#A8C5C2)' }
+                      : {} }>
+              {t.label}
+            </button>
+          ))}
         </div>
 
-        {/* Qué verás aquí cuando el nodo esté activo */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <FeatureCard
-            icon={<Sun className="w-6 h-6 text-[#0b3d2e]" />}
-            title="Generación solar"
-            text="Curvas de generación real por nodo y por hogar, hora a hora."
-          />
-          <FeatureCard
-            icon={<Battery className="w-6 h-6 text-[#0b3d2e]" />}
-            title="Estado de batería"
-            text="Carga, descarga y respaldo comunitario disponible ante cortes."
-          />
-          <FeatureCard
-            icon={<Gauge className="w-6 h-6 text-[#0b3d2e]" />}
-            title="Consumo y ahorro"
-            text="Cuánto consume y ahorra cada familia, con total transparencia."
-          />
+        {/* Chart panel */}
+        <div className="bg-white rounded-2xl border border-[rgba(123,174,138,.18)] shadow-card p-6">
+          {tab === 'generacion' && (
+            <>
+              <p className="text-xs text-gray-400 font-mono mb-6">
+                Generación solar {realSolar ? '(real · Open-Meteo)' : '(simulada)'} vs. consumo — 24 horas (kW)
+              </p>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={data}>
+                  <defs>
+                    <linearGradient id="gSolar" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#7BAE8A" stopOpacity={.25}/>
+                      <stop offset="95%" stopColor="#7BAE8A" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="gConsumo" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="#9B8FB5" stopOpacity={.2}/>
+                      <stop offset="95%" stopColor="#9B8FB5" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 6"/>
+                  <XAxis dataKey="hour" tick={{ fill:'#9ca3af', fontSize:9, fontFamily:'JetBrains Mono' }}/>
+                  <YAxis tick={{ fill:'#9ca3af', fontSize:9, fontFamily:'JetBrains Mono' }}/>
+                  <Tooltip content={<CustomTooltip/>}/>
+                  <Legend wrapperStyle={{ fontSize:11, fontFamily:'JetBrains Mono', color:'#9ca3af' }}/>
+                  <Area type="monotone" dataKey="solar"       name="Solar"   stroke="#7BAE8A" strokeWidth={2} fill="url(#gSolar)"  dot={false}/>
+                  <Area type="monotone" dataKey="consumption" name="Consumo" stroke="#9B8FB5" strokeWidth={2} fill="url(#gConsumo)" dot={false}/>
+                </AreaChart>
+              </ResponsiveContainer>
+            </>
+          )}
+          {tab === 'comunas' && (
+            <>
+              <p className="text-xs text-gray-400 font-mono mb-6">Generación vs. demanda por comuna (kW)</p>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={COMMUNE_DATA}>
+                  <CartesianGrid strokeDasharray="3 6"/>
+                  <XAxis dataKey="name" tick={{ fill:'#9ca3af', fontSize:9, fontFamily:'JetBrains Mono' }}/>
+                  <YAxis tick={{ fill:'#9ca3af', fontSize:9, fontFamily:'JetBrains Mono' }}/>
+                  <Tooltip content={<CustomTooltip/>}/>
+                  <Legend wrapperStyle={{ fontSize:11, fontFamily:'JetBrains Mono', color:'#9ca3af' }}/>
+                  <Bar dataKey="generation" name="Generación" fill="#7BAE8A" opacity={.9} radius={[4,4,0,0]}/>
+                  <Bar dataKey="demand"     name="Demanda"    fill="#A8C5C2" opacity={.85} radius={[4,4,0,0]}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </>
+          )}
+          {tab === 'balance' && (
+            <>
+              <p className="text-xs text-gray-400 font-mono mb-6">Balance energético neto — kW (positivo = excedente)</p>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={data}>
+                  <CartesianGrid strokeDasharray="3 6"/>
+                  <XAxis dataKey="hour" tick={{ fill:'#9ca3af', fontSize:9, fontFamily:'JetBrains Mono' }}/>
+                  <YAxis tick={{ fill:'#9ca3af', fontSize:9, fontFamily:'JetBrains Mono' }}/>
+                  <Tooltip content={<CustomTooltip/>}/>
+                  <Legend wrapperStyle={{ fontSize:11, fontFamily:'JetBrains Mono', color:'#9ca3af' }}/>
+                  <Line type="monotone" dataKey="balance" name="Balance neto" stroke="#4A6741" strokeWidth={2.5} dot={false}/>
+                  <Line type="monotone" dataKey="battery" name="Batería"      stroke="#9B8FB5" strokeWidth={1.5} dot={false} strokeDasharray="6 3"/>
+                </LineChart>
+              </ResponsiveContainer>
+            </>
+          )}
+        </div>
+
+        {/* Bottom KPI row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5">
+          {[
+            { label:'Eficiencia media',   value:'91%',     icon:'📈', color:'#7BAE8A' },
+            { label:'Factor de carga',    value:'0.74',    icon:'⚖️', color:'#A8C5C2' },
+            { label:'Horas punta solar',  value:'5.8 HSP', icon:'☀️', color:'#C9A96E' },
+            { label:'Reducción pico red', value:'38%',     icon:'🔽', color:'#9B8FB5' },
+          ].map((s, i) => (
+            <div key={i} className="bg-white rounded-xl p-4 border border-[rgba(123,174,138,.18)] text-center hover:shadow-card transition-all">
+              <div className="text-2xl mb-2">{s.icon}</div>
+              <div className="font-mono font-bold text-lg" style={{ color:s.color }}>{s.value}</div>
+              <div className="text-xs text-gray-400 font-mono mt-0.5">{s.label}</div>
+            </div>
+          ))}
         </div>
       </div>
-    </div>
+    </section>
   )
 }
-
-function FeatureCard({ icon, title, text }) {
-  return (
-    <div className="bg-gradient-to-br from-[#F7F4EF] to-white rounded-2xl p-8 border border-[#2ecc71]/20">
-      <div className="w-12 h-12 bg-[#2ecc71]/20 rounded-lg flex items-center justify-center mb-4">
-        {icon}
-      </div>
-      <h3 className="text-lg font-bold text-[#0b3d2e] mb-2">{title}</h3>
-      <p className="text-[#5a7a6a] leading-relaxed">{text}</p>
-    </div>
-  )
-}
-
-export default DashboardPage
