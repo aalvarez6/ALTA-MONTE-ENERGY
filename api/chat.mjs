@@ -85,8 +85,6 @@ export default async function handler(req, res) {
           `- Be warm, concise and clear (max 3 short paragraphs).\n` +
           `- If you don't know something or it's not in the documentation, say so honestly ` +
           `and invite them to email altamonteenergy@gmail.com. Never invent figures.\n`,
-          `- Respond in plain, natural text like a real person. Do NOT use markdown, ` +
-          `asterisks (*), bullet symbols or headings. Use short, warm conversational sentences.\n` +
       },
       {
         type: 'text',
@@ -129,4 +127,5 @@ export default async function handler(req, res) {
   }
 }
 
-      
+
+     
