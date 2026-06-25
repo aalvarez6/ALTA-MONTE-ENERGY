@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 
-// ⬇️ Misma URL de Apps Script que usas en ContactPage (para registrar leads del chat)
+// ✅ URL de tu App Web de Apps Script (entre comillas, termina en /exec)
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwdyl-d3vLLS_eSedBAFKTM9ey1m5dEYzXAgw3h42zKCQ_zHIe-dCv4EkvN5n_yWAraYg/exec'
 
-const MAX_CHARS = 100
+const MAX_CHARS = 200
 
 const T = {
   es: {
     title: 'Alma',
     status: 'en línea',
     pick: 'Elige tu idioma para empezar:',
-    greet: '¡Hola! 🌿 Soy Alma de Alta Monte Energy. Pregúntame sobre nuestros nodos energéticos, la tecnología o cómo participar.',
+    greet: '¡Hola! 🌿 Soy Alma, la asistente de Alta Monte Energy. Pregúntame sobre nuestros nodos energéticos, la tecnología o cómo participar.',
     placeholder: 'Escribe tu pregunta…',
     leadBtn: 'Quiero que me contacten',
     leadName: 'Tu nombre',
@@ -24,7 +24,7 @@ const T = {
     title: 'Alma',
     status: 'online',
     pick: 'Choose your language to start:',
-    greet: 'Hi! 🌿 I\'m Alma the Alta Monte Energy. Ask me about our energy nodes, the technology, or how to get involved.',
+    greet: 'Hi! 🌿 I\'m Alma, the Alta Monte Energy assistant. Ask me about our energy nodes, the technology, or how to get involved.',
     placeholder: 'Type your question…',
     leadBtn: 'I\'d like to be contacted',
     leadName: 'Your name',
@@ -34,6 +34,23 @@ const T = {
     errConn: 'I\'m having connection issues. Write to us at altamonteenergy@gmail.com 🌿',
     suggestions: ['How does a node work?', 'How do I join?', 'What tech do you use?'],
   },
+}
+
+/* Alma — barranquero estilizado en la paleta de marca */
+function Barranquero({ size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <circle cx="42" cy="22" r="20" fill="#F4D03F" opacity="0.12" />
+      <path d="M10 46 L2 58 L18 50 Z" fill="#1F3A5F" />
+      <path d="M16 48 C12 32 24 22 38 24 C52 26 56 38 50 46 C45 53 36 54 28 53 C22 52 18 51 16 48 Z" fill="#1ABC9C" />
+      <path d="M20 46 C22 40 30 38 37 40 C33 49 25 49 20 46 Z" fill="#A3E4A9" opacity="0.9" />
+      <path d="M28 34 C37 33 46 37 49 44 C43 47 33 46 27 41 C25 38 25 35 28 34 Z" fill="#2ECC71" />
+      <circle cx="45" cy="26" r="10" fill="#1ABC9C" />
+      <path d="M40 22 C44 19 51 20 54 24" stroke="#0B3D2E" strokeWidth="3.5" strokeLinecap="round" />
+      <circle cx="47.5" cy="25" r="2" fill="#0B3D2E" />
+      <path d="M54 27 L63 29.5 L54 32 Z" fill="#F4D03F" />
+    </svg>
+  )
 }
 
 export default function ChatWidget() {
@@ -67,7 +84,7 @@ export default function ChatWidget() {
         body: JSON.stringify({ messages: next, idioma: lang }),
       })
       const data = await r.json()
-      const reply = limpiarTexto(data.reply) || t.errConn
+      const reply = data.reply || t.errConn
       setMessages((m) => [...m, { role: 'assistant', content: reply }])
     } catch {
       setMessages((m) => [...m, { role: 'assistant', content: t.errConn }])
@@ -89,7 +106,7 @@ export default function ChatWidget() {
           telefono: '',
           asunto: 'Lead desde chat',
           origen: 'Chat',
-          mensaje: 'Solicitó contacto desde el chatbot',
+          mensaje: 'Solicitó contacto desde el chatbot Alma',
         }),
       })
       setLeadSent(true)
@@ -101,31 +118,39 @@ export default function ChatWidget() {
 
   return (
     <>
+      <style>{`
+        @keyframes alma-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(46,204,113,.45) }
+          70% { box-shadow: 0 0 0 12px rgba(46,204,113,0) }
+          100% { box-shadow: 0 0 0 0 rgba(46,204,113,0) }
+        }
+        .alma-fab { transition: transform .2s ease; animation: alma-pulse 2.6s infinite; }
+        .alma-fab:hover { transform: scale(1.08); }
+      `}</style>
+
       {/* Botón flotante */}
       <button
         onClick={() => setOpen((v) => !v)}
-        aria-label="Abrir asistente"
+        className="alma-fab"
+        aria-label="Abrir chat con Alma"
         style={{
           position: 'fixed', bottom: 24, right: 24, zIndex: 1000,
-          width: 60, height: 60, borderRadius: '50%',
+          width: 62, height: 62, borderRadius: '50%',
           background: '#0B3D2E', border: '2px solid #1ABC9C',
           boxShadow: '0 8px 24px rgba(11,61,46,.35)', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
-        {/* Barranquero estilizado */}
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <circle cx="14" cy="11" r="5" fill="#1ABC9C" />
-          <path d="M5 24c0-5 4-9 9-9s9 4 9 9" stroke="#2ECC71" strokeWidth="2" strokeLinecap="round" />
-          <circle cx="20" cy="8" r="3.5" fill="#F4D03F" />
-        </svg>
+        <Barranquero size={34} />
       </button>
 
       {/* Ventana de chat */}
       {open && (
         <div
+          role="dialog"
+          aria-label="Chat con Alma"
           style={{
-            position: 'fixed', bottom: 96, right: 24, zIndex: 1000,
+            position: 'fixed', bottom: 98, right: 24, zIndex: 1000,
             width: 'min(370px, calc(100vw - 32px))',
             background: '#fff', borderRadius: 16, overflow: 'hidden',
             boxShadow: '0 20px 60px rgba(11,61,46,.25)',
@@ -137,16 +162,18 @@ export default function ChatWidget() {
           {/* Header */}
           <div style={{ background: '#0B3D2E', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(26,188,156,.18)', border: '1px solid rgba(26,188,156,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🐦</div>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(26,188,156,.18)', border: '1px solid rgba(26,188,156,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Barranquero size={24} />
+              </div>
               <div>
-                <div style={{ color: '#fff', fontWeight: 600, fontSize: 13 }}>{t.title}</div>
+                <div style={{ color: '#fff', fontWeight: 600, fontSize: 14 }}>{t.title}</div>
                 <div style={{ color: '#2ECC71', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#2ECC71', display: 'inline-block' }} />
                   {t.status}
                 </div>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,.6)', fontSize: 18, cursor: 'pointer' }}>✕</button>
+            <button onClick={() => setOpen(false)} aria-label="Cerrar chat" style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,.6)', fontSize: 18, cursor: 'pointer' }}>✕</button>
           </div>
 
           {/* Selector de idioma */}
@@ -200,9 +227,10 @@ export default function ChatWidget() {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') send() }}
                     placeholder={t.placeholder}
+                    aria-label={t.placeholder}
                     style={{ flex: 1, padding: '9px 12px', borderRadius: 8, border: '1px solid rgba(11,61,46,.15)', fontSize: 13, outline: 'none', background: '#F7F4EF' }}
                   />
-                  <button onClick={() => send()} disabled={loading} style={{ ...btnStyle, width: 40, padding: 0, opacity: loading ? .6 : 1 }}>➤</button>
+                  <button onClick={() => send()} disabled={loading} aria-label="Enviar" style={{ ...btnStyle, width: 40, padding: 0, opacity: loading ? .6 : 1 }}>➤</button>
                 </div>
                 <div style={{ textAlign: 'right', fontSize: 10, color: '#9aa89e', marginTop: 4 }}>{input.length}/{MAX_CHARS}</div>
               </div>
@@ -228,15 +256,6 @@ function Bubble({ role, children }) {
       }}>{children}</div>
     </div>
   )
-}
-function limpiarTexto(t) {
-  return String(t || '')
-    .replace(/\*\*(.*?)\*\*/g, '$1')   // quita **negritas**
-    .replace(/\*(.*?)\*/g, '$1')       // quita *cursivas*
-    .replace(/^#{1,6}\s+/gm, '')       // quita # encabezados
-    .replace(/^\s*[-*•]\s+/gm, '• ')   // listas → punto simple
-    .replace(/`{1,3}/g, '')            // quita backticks
-    .trim()
 }
 
 const btnStyle = {
