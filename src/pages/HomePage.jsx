@@ -6,10 +6,10 @@ import './HomePage.css'
 /* Rutas de imágenes — todas en public/AM_Imagenes/ */
 const IMG = {
   hero:        '/AM_Imagenes/Background.png',
-  heroFallback:'/AM_Imagenes/AM_Background_placeholder.svg',
-  logo:        '/AM_Imagenes/Logo_White(2)',
+  heroFallback:'/AM_Imagenes/AM_Background.png',
+  logo:        '/AM_Imagenes/Logo_White(2).png',
   antes:       '/AM_Imagenes/Altos_de_la_torre_M. Espinosa_1.jpg',
-  despues:     '/AM_Imagenes/Altos de la torre_paneles_IA1.png',
+  despues:     '/AM_Imagenes/Altos_de_la_torre_paneles_IA1.png',
   antes_det:   '/AM_Imagenes/Altos_de_la_torre_Decierto_Cediento_3.png',
   despues_det: '/AM_Imagenes/Altos_de_la_torre_paneles_GenIA_3.png'
 }
