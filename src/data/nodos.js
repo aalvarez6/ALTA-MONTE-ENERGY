@@ -1,62 +1,61 @@
 // src/data/nodos.js
-// Fuente única de los nodos DER. Edita aquí para agregar/cambiar nodos.
-// Cuando quieras, esto se puede reemplazar por un fetch a una Google Sheet
-// o una API sin tocar el resto de la app (misma estructura de objeto).
+// Fuente única de los nodos DER (fuera de mockData.js, como pediste).
+// Coordenadas reales aproximadas de comunas de ladera de Medellín.
+// Para cambiar el estado de un nodo, edita solo el campo `estado`.
 //
 // estado: 'planeado' | 'ideacion'   (controla el color del marcador)
-// Coordenadas aproximadas de comunas de ladera de Medellín — ajústalas
-// a la ubicación real cuando la tengas.
+// La Torre (piloto) = planeado · los demás = en ideación.
 
 export const NODOS = [
   {
-    id: 'la-torre-c8',
-    nombre: 'Nodo La Torre',
+    id: 'AM-001',
+    nombre: 'La Torre',
     comuna: 'Comuna 8 · Villa Hermosa',
     estado: 'planeado',
-    lat: 6.2518,
-    lng: -75.5380,
-    descripcion: 'Primer nodo piloto. Solar distribuido + batería comunitaria + gemelo digital.',
-  },
-  {
-    id: 'popular-c1',
-    nombre: 'Nodo Popular',
-    comuna: 'Comuna 1 · Popular',
-    estado: 'ideacion',
-    lat: 6.2960,
+    lat: 6.2510,
     lng: -75.5450,
-    descripcion: 'En ideación. Evaluación de comunidad y techos disponibles.',
+    descripcion: 'Nodo piloto planeado. Primer despliegue completo con IoT real.',
   },
   {
-    id: 'manrique-c3',
-    nombre: 'Nodo Manrique',
+    id: 'AM-002',
+    nombre: 'El Pinal',
+    comuna: 'Comuna 8 · Villa Hermosa',
+    estado: 'ideacion',
+    lat: 6.2486,
+    lng: -75.5388,
+    descripcion: 'En ideación. Evaluación de techos y comunidad.',
+  },
+  {
+    id: 'AM-003',
+    nombre: 'Llanaditas',
+    comuna: 'Comuna 8 · Villa Hermosa',
+    estado: 'ideacion',
+    lat: 6.2453,
+    lng: -75.5331,
+    descripcion: 'En ideación. Estudio de viabilidad inicial.',
+  },
+  {
+    id: 'AM-004',
+    nombre: 'Carambolas',
     comuna: 'Comuna 3 · Manrique',
     estado: 'ideacion',
-    lat: 6.2780,
-    lng: -75.5500,
-    descripcion: 'En ideación. Identificación de aliados locales.',
+    lat: 6.2718,
+    lng: -75.5402,
+    descripcion: 'En ideación. Alianza con la JAC local en conversación.',
   },
   {
-    id: 'san-javier-c13',
-    nombre: 'Nodo San Javier',
-    comuna: 'Comuna 13 · San Javier',
+    id: 'AM-005',
+    nombre: 'El Faro',
+    comuna: 'Comuna 8 · Villa Hermosa',
     estado: 'ideacion',
-    lat: 6.2560,
-    lng: -75.6150,
-    descripcion: 'En ideación. Potencial alto por comunidad organizada.',
-  },
-  {
-    id: 'doce-octubre-c6',
-    nombre: 'Nodo Doce de Octubre',
-    comuna: 'Comuna 6 · Doce de Octubre',
-    estado: 'ideacion',
-    lat: 6.2950,
-    lng: -75.5800,
-    descripcion: 'En ideación. Mapeo inicial de demanda energética.',
+    lat: 6.2398,
+    lng: -75.5295,
+    descripcion: 'En ideación. Posible expansión del corredor de la Comuna 8.',
   },
 ]
 
-// Centro del mapa (Medellín) y configuración de estados
-export const MEDELLIN_CENTER = { lat: 6.2476, lng: -75.5658 }
+// Centro del mapa (Medellín) y configuración visual de estados
+export const MEDELLIN_CENTER = { lat: 6.2486, lng: -75.5400 }
 
 export const ESTADO_CONFIG = {
   planeado: { label: 'Planeado', color: '#2ECC71' },
