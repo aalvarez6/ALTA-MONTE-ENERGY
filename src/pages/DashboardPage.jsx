@@ -3,13 +3,25 @@ import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
-import { generate24h, COMMUNE_DATA } from '../data/simulatedData'
+import * as mock from '../data/mockData'   // ← usa tu mockData existente
 
-// ── Datos solares REALES de Medellín (Open-Meteo · gratis, sin key) ──
-const LAT = 6.2442, LNG = -75.5812
-const KWP = 32, FACTOR = 0.88 // potencia del nodo La Torre · ajusta si quieres
+// ── Solar REAL de Medellín (Open-Meteo · gratis, sin key) ──
+const LAT = 6.2442, LNG = -75.5812, KWP = 32, FACTOR = 0.88
 const SOLAR_API = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LNG}` +
   `&hourly=shortwave_radiation&timezone=America%2FBogota&forecast_days=1`
+
+// Demanda por comuna derivada de tus NODOS (sin datos nuevos)
+function comunasDesdeNodos() {
+  const nodos = mock.NODOS || []
+  const g = {}
+  nodos.forEach((n) => {
+    const key = (n.comuna || 'Otra').split('·')[0].trim()
+    g[key] ??= { name: key, generation: 0, demand: 0 }
+    g[key].generation += n.panelesKw || 0
+    g[key].demand += Math.round((n.familias || 0) * 0.35)
+  })
+  return Object.values(g)
+}
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -28,11 +40,10 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function Dashboard() {
-  const [sim, setSim] = useState(generate24h())
-  const [realSolar, setRealSolar] = useState(null) // array 24h en kW, o null
+  const [curva, setCurva] = useState(() => (mock.getCurva24h ? mock.getCurva24h() : []))
+  const [realSolar, setRealSolar] = useState(null)
   const [tab, setTab] = useState('generacion')
 
-  // Trae la curva solar real una vez al cargar
   useEffect(() => {
     fetch(SOLAR_API)
       .then((r) => r.json())
@@ -41,23 +52,22 @@ export default function Dashboard() {
         const kw = rad.slice(0, 24).map((v) => +(((v || 0) / 1000) * KWP * FACTOR).toFixed(1))
         if (kw.length) setRealSolar(kw)
       })
-      .catch(() => {}) // si falla, se queda con la solar simulada
+      .catch(() => {})
   }, [])
 
-  // Refresca la parte simulada (consumo) cada 8s
   useEffect(() => {
-    const id = setInterval(() => setSim(generate24h()), 8000)
+    const id = setInterval(() => mock.getCurva24h && setCurva(mock.getCurva24h()), 8000)
     return () => clearInterval(id)
   }, [])
 
-  // Combina: solar REAL + consumo simulado; balance recalculado con solar real
-  const data = useMemo(() => {
-    return sim.map((row, i) => {
-      if (!realSolar) return row
-      const solar = realSolar[i] ?? row.solar
-      return { ...row, solar, balance: +(solar - (row.consumption ?? 0)).toFixed(1) }
-    })
-  }, [sim, realSolar])
+  // Combina: solar real + consumo de mockData; balance = solar - consumo
+  const data = useMemo(() => curva.map((row, i) => {
+    const solar = realSolar ? (realSolar[i] ?? row.generacion) : row.generacion
+    const consumption = row.consumo ?? 0
+    return { hour: row.hora, solar, consumption, balance: +(solar - consumption).toFixed(1) }
+  }), [curva, realSolar])
+
+  const comunas = useMemo(comunasDesdeNodos, [])
 
   const tabs = [
     { id:'generacion', label:'Generación & Consumo' },
@@ -110,7 +120,7 @@ export default function Dashboard() {
           {tab === 'generacion' && (
             <>
               <p className="text-xs text-gray-400 font-mono mb-6">
-                Generación solar {realSolar ? '(real · Open-Meteo)' : '(simulada)'} vs. consumo — 24 horas (kW)
+                Generación solar {realSolar ? '(real · Open-Meteo)' : ''} vs. consumo — 24 horas (kW)
               </p>
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={data}>
@@ -139,7 +149,7 @@ export default function Dashboard() {
             <>
               <p className="text-xs text-gray-400 font-mono mb-6">Generación vs. demanda por comuna (kW)</p>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={COMMUNE_DATA}>
+                <BarChart data={comunas}>
                   <CartesianGrid strokeDasharray="3 6"/>
                   <XAxis dataKey="name" tick={{ fill:'#9ca3af', fontSize:9, fontFamily:'JetBrains Mono' }}/>
                   <YAxis tick={{ fill:'#9ca3af', fontSize:9, fontFamily:'JetBrains Mono' }}/>
@@ -162,7 +172,6 @@ export default function Dashboard() {
                   <Tooltip content={<CustomTooltip/>}/>
                   <Legend wrapperStyle={{ fontSize:11, fontFamily:'JetBrains Mono', color:'#9ca3af' }}/>
                   <Line type="monotone" dataKey="balance" name="Balance neto" stroke="#4A6741" strokeWidth={2.5} dot={false}/>
-                  <Line type="monotone" dataKey="battery" name="Batería"      stroke="#9B8FB5" strokeWidth={1.5} dot={false} strokeDasharray="6 3"/>
                 </LineChart>
               </ResponsiveContainer>
             </>
