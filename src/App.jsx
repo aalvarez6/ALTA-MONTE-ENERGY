@@ -46,7 +46,7 @@ function App() {
           </Suspense>
         </main>
         <Footer />
-        <ChatWidget />   {/* botón flotante visible en todas las páginas */}
+        <ChatWidget />   {/* botón en forma de ave flotante visible en todas las páginas */}
       </div>
     </Router>
   )
