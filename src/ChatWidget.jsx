@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react'
 // ⬇️ Misma URL de Apps Script que usas en ContactPage (para registrar leads del chat)
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwdyl-d3vLLS_eSedBAFKTM9ey1m5dEYzXAgw3h42zKCQ_zHIe-dCv4EkvN5n_yWAraYg/exec'
 
-const MAX_CHARS = 200
+const MAX_CHARS = 100
 
 const T = {
   es: {
