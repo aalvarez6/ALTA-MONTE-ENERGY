@@ -15,8 +15,8 @@ export default {
         cream:    '#F7F4EF',
       },
       fontFamily: {
-        poppins: ['Poppins', 'sans-serif'],
-        inter:   ['Inter', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
+        sans:   ['Inter', 'sans-serif'],
       },
       boxShadow: {
         card: '0 4px 24px rgba(11,61,46,.10), 0 1px 4px rgba(0,0,0,.05)',
