@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -120,3 +121,37 @@
 /* ─── Recharts con grid de marca ─── */
 .recharts-cartesian-grid-horizontal line,
 .recharts-cartesian-grid-vertical line { stroke: rgba(46,204,113,.15) !important; }
+
+/* ════════════════════════════════════════════════
+   MODO OSCURO — overrides globales (.dark en <html>)
+   Fondos claros → tonos forest profundos de marca
+   ════════════════════════════════════════════════ */
+.dark body { background: #081b14; color: #e6ede9; }
+
+/* Fondos de página y tarjetas (utilidades más usadas) */
+.dark .bg-\[\#F7F4EF\]  { background-color: #081b14 !important; }
+.dark .bg-white          { background-color: #0e241b !important; }
+.dark .bg-\[\#f7f4ef\]  { background-color: #0e241b !important; }
+
+/* Textos oscuros → claros */
+.dark .text-\[\#0b3d2e\] { color: #e9f5ef !important; }
+.dark .text-\[\#5a7a6a\] { color: #9fb8ac !important; }
+.dark .text-\[\#2C2C2C\],
+.dark .text-\[\#2c2c2c\] { color: #e6ede9 !important; }
+
+/* Bordes suaves más visibles sobre fondo oscuro */
+.dark .border-\[\#2ecc71\]\/15 { border-color: rgba(46,204,113,.30) !important; }
+.dark .border-\[\#2ecc71\]\/20 { border-color: rgba(46,204,113,.35) !important; }
+
+/* Componentes propios */
+.dark .metric-card { background: #0e241b; border-color: rgba(46,204,113,.28); }
+.dark .glass { background: rgba(14,36,27,.82); border-color: rgba(46,204,113,.30); }
+
+/* Mapa Leaflet: quitar filtro cálido en oscuro */
+.dark .leaflet-container { background: #0a231a !important; }
+.dark .leaflet-tile { filter: brightness(.75) contrast(1.05) saturate(.85); }
+.dark .leaflet-popup-content-wrapper {
+  background: rgba(14,36,27,.97) !important;
+  color: #e6ede9 !important;
+}
+.dark .leaflet-popup-tip { background: rgba(14,36,27,.97) !important; }
