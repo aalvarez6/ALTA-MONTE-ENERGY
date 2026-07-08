@@ -40,6 +40,8 @@ const TXT = {
     leadName: 'Nombre',
     leadEmail: 'Correo',
     leadOrg: 'Empresa o barrio (opcional)',
+    leadInteres: 'Tipo de interés…',
+    intereses: ['Patrocinio / RSE-ESG', 'Nodo para mi comunidad', 'Alianza institucional', 'Inversión', 'Otro'],
     leadSend: 'Enviar datos',
     leadOk: '¡Gracias! Te contactaremos en menos de 24 horas.',
     errConn: 'No pude conectarme. Escríbenos a altamonteenergy@gmail.com',
@@ -56,6 +58,8 @@ const TXT = {
     leadName: 'Name',
     leadEmail: 'Email',
     leadOrg: 'Company or neighborhood (optional)',
+    leadInteres: 'Type of interest…',
+    intereses: ['Sponsorship / ESG-CSR', 'Node for my community', 'Institutional alliance', 'Investment', 'Other'],
     leadSend: 'Submit',
     leadOk: "Thanks! We'll reach out within 24 hours.",
     errConn: "Couldn't connect. Write to altamonteenergy@gmail.com",
@@ -104,6 +108,7 @@ const ChatWidget = () => {
   const [leadName, setLeadName] = useState('')
   const [leadEmail, setLeadEmail] = useState('')
   const [leadOrg, setLeadOrg] = useState('')
+  const [leadInteres, setLeadInteres] = useState('')
   const [leadSent, setLeadSent] = useState(false)
 
   const endRef = useRef(null)
@@ -143,7 +148,7 @@ const ChatWidget = () => {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ nombre: leadName.trim(), email: leadEmail.trim(), empresa: leadOrg.trim(), origen: 'Chat Alma' })
+        body: JSON.stringify({ nombre: leadName.trim(), email: leadEmail.trim(), empresa: leadOrg.trim(), interes: leadInteres, origen: 'Chat Alma' })
       })
     } catch { /* no-cors: la escritura llega igual */ }
     setLeadSent(true)
@@ -236,6 +241,14 @@ const ChatWidget = () => {
                   placeholder={t.leadOrg}
                   className="w-full text-sm px-3 py-2 rounded-lg border border-[#2ecc71]/30 bg-[#F7F4EF] dark:bg-[#081b14] dark:text-[#e6ede9] outline-none focus:border-[#2ecc71]"
                 />
+                <select
+                  value={leadInteres}
+                  onChange={(e) => setLeadInteres(e.target.value)}
+                  className="w-full text-sm px-3 py-2 rounded-lg border border-[#2ecc71]/30 bg-[#F7F4EF] dark:bg-[#081b14] dark:text-[#e6ede9] outline-none focus:border-[#2ecc71]"
+                >
+                  <option value="">{t.leadInteres}</option>
+                  {t.intereses.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
                 <button
                   onClick={sendLead}
                   className="w-full bg-[#2ECC71] text-[#0B3D2E] font-bold text-sm py-2 rounded-lg hover:bg-[#F4D03F] transition-colors"
