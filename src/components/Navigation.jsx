@@ -1,12 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Menu, X, ChevronDown, LayoutDashboard, MapPin, Boxes } from 'lucide-react'
+import { Menu, X, ChevronDown, LayoutDashboard, MapPin, Boxes, Sun, Moon } from 'lucide-react'
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [platformOpen, setPlatformOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+
+  /* ── Modo oscuro / claro (persistido en localStorage) ── */
+  const [dark, setDark] = useState(() => {
+    try { return localStorage.getItem('am-theme') === 'dark' } catch { return false }
+  })
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark)
+    try { localStorage.setItem('am-theme', dark ? 'dark' : 'light') } catch { /* no-op */ }
+  }, [dark])
 
   /* Navega a una sección de la home. Si no estamos en la home, primero va a "/" y luego baja. */
   const goToSection = (hash) => {
@@ -30,21 +39,23 @@ const Navigation = () => {
   const sectionLink = "text-white/70 hover:text-[#2ecc71] text-sm font-medium transition-colors cursor-pointer bg-transparent border-none"
 
   return (
-    <nav className="fixed w-full top-0 z-50 bg-[#0b3d2e]/97 backdrop-blur-md border-b border-[#2ecc71]/10 shadow-lg">
+    <nav className="fixed w-full top-0 z-50 bg-[#0b3d2e]/97 backdrop-blur-md border-b border-[#2ecc71]/10 shadow-[0_6px_24px_rgba(6,30,20,0.45)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <img
-              src="/AM_Imagenes/Logo_White (2).png"
-              alt="Alta Monte Energy"
-              className="h-10 w-auto"
-              onError={(e) => {
-                e.target.style.display = 'none'
-                e.target.nextSibling.style.display = 'flex'
-              }}
-            />
-            <div className="w-10 h-10 bg-[#f7f4ef] rounded-lg items-center justify-center shadow-md group-hover:shadow-lg transition-all" style={{ display: 'none' }}>
+            <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-[#2ecc71]/50 bg-[#0b3d2e] shadow-md group-hover:border-[#2ecc71] transition-all flex items-center justify-center flex-shrink-0">
+              <img
+                src="/AM_Imagenes/Logo_White(2)"
+                alt="Alta Monte Energy"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.parentElement.style.display = 'none'
+                  e.target.parentElement.nextElementSibling.style.display = 'flex'
+                }}
+              />
+            </div>
+            <div className="w-11 h-11 bg-[#f7f4ef] rounded-full items-center justify-center shadow-md" style={{ display: 'none' }}>
               <span className="font-bold text-[#0b3d2e] text-lg">AM</span>
             </div>
             <span className="hidden sm:inline font-bold text-white text-lg tracking-tight">Alta Monte</span>
@@ -80,6 +91,15 @@ const Navigation = () => {
               )}
             </div>
 
+            <button
+              onClick={() => setDark(!dark)}
+              aria-label={dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+              title={dark ? 'Modo claro' : 'Modo oscuro'}
+              className="w-9 h-9 rounded-full flex items-center justify-center border border-white/15 text-white/75 hover:text-[#f4d03f] hover:border-[#2ecc71]/60 transition-all"
+            >
+              {dark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+
             <button onClick={() => goToSection('#contacto')} className="bg-[#2ecc71] text-[#0b3d2e] px-5 py-2 rounded-lg font-bold text-sm hover:bg-[#f4d03f] transition-all transform hover:scale-105">
               Conversemos
             </button>
@@ -107,6 +127,13 @@ const Navigation = () => {
               ))}
 
               <div className="border-t border-white/10 my-2"></div>
+              <button
+                onClick={() => setDark(!dark)}
+                className="flex items-center gap-3 w-full text-white/70 hover:text-[#f4d03f] py-2.5"
+              >
+                {dark ? <Sun size={16} /> : <Moon size={16} />}
+                {dark ? 'Modo claro' : 'Modo oscuro'}
+              </button>
               <button onClick={() => goToSection('#contacto')} className="block w-full bg-[#2ecc71] text-[#0b3d2e] px-4 py-2.5 rounded-lg font-bold text-center mt-2">Conversemos</button>
             </div>
           </div>
