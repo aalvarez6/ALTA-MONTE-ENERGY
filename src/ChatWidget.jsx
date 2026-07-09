@@ -31,8 +31,8 @@ function limpiarTexto(t) {
 const TXT = {
   es: {
     title: 'Alma',
-    subtitle: 'Experta en energía comunitaria',
-    hello: '¡Hola! Soy Alma 🌿 Puedo contarte cómo funciona Alta Monte: nuestro modelo de energía como servicio, el valor para empresas con metas ESG, y los beneficios para las comunidades. ¿Qué te gustaría saber?',
+    subtitle: 'Asistente Virtual',
+    hello: '¡Hola! Soy Alma 🌿 Puedo contarte cómo funciona Alta Monte: el valor para empresas con metas ESG, y los beneficios para las comunidades. ¿Qué te gustaría saber?',
     placeholder: 'Escribe tu pregunta…',
     send: 'Enviar',
     leadBtn: 'Quiero que me contacten',
@@ -49,7 +49,7 @@ const TXT = {
   },
   en: {
     title: 'Alma',
-    subtitle: 'Community energy expert',
+    subtitle: 'Virtual assistant',
     hello: "Hi! I'm Alma 🌿 I can tell you how Alta Monte works: our energy-as-a-service model, the value for companies with ESG goals, and the benefits for communities. What would you like to know?",
     placeholder: 'Type your question…',
     send: 'Send',
