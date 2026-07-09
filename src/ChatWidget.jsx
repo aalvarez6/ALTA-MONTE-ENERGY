@@ -12,7 +12,7 @@ const ALMA_AVATAR = '/AM_Imagenes/Alma.png'
 // 📋 CAPTURA DE LEADS: pega aquí la MISMA URL de Apps Script que ya usa
 //    tu formulario de contacto (la de Google Sheets). Si la dejas vacía,
 //    el mini-formulario del chat se oculta solo.
-const SHEETS_URL = ''
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwdyl-d3vLLS_eSedBAFKTM9ey1m5dEYzXAgw3h42zKCQ_zHIe-dCv4EkvN5n_yWAraYg/exec'
 
 const MAX_CHARS = 500
 
