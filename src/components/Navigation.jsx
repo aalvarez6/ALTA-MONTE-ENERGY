@@ -10,7 +10,7 @@ const Navigation = () => {
 
   /* ── Modo oscuro / claro (persistido en localStorage) ── */
   const [dark, setDark] = useState(() => {
-    try { return localStorage.getItem('am-theme') === 'dark' } catch { return false }
+    try { return localStorage.getItem('am-theme') !== 'light' } catch { return true }
   })
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark)
@@ -39,14 +39,14 @@ const Navigation = () => {
   const sectionLink = "text-white/70 hover:text-[#2ecc71] text-sm font-medium transition-colors cursor-pointer bg-transparent border-none"
 
   return (
-    <nav className="fixed w-full top-0 z-50 bg-[#0b3d2e]/97 backdrop-blur-md border-b border-[#2ecc71]/10 shadow-[0_6px_24px_rgba(6,30,20,0.45)]">
+    <nav className="fixed w-full top-0 z-50 bg-[#0b3d2e]/97 backdrop-blur-md border-b border-[#2ecc71]/10 shadow-lg" style={{ boxShadow: "0 6px 24px rgba(6,30,20,.45)" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-[#2ecc71]/50 bg-[#0b3d2e] shadow-md group-hover:border-[#2ecc71] transition-all flex items-center justify-center flex-shrink-0">
               <img
-                src="/AM_Imagenes/Logo_White(2)"
+                src="/AM_Imagenes/logo.png"
                 alt="Alta Monte Energy"
                 className="w-full h-full object-cover"
                 onError={(e) => {
