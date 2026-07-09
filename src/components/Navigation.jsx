@@ -46,7 +46,7 @@ const Navigation = () => {
           <Link to="/" className="flex items-center gap-2 group">
             <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-[#2ecc71]/50 bg-[#0b3d2e] shadow-md group-hover:border-[#2ecc71] transition-all flex items-center justify-center flex-shrink-0">
               <img
-                src="/AM_Imagenes/logo.png"
+                src="/AM_Imagenes/Logo_white.png"
                 alt="Alta Monte Energy"
                 className="w-full h-full object-cover"
                 onError={(e) => {
