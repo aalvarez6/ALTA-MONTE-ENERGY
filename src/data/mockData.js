@@ -40,7 +40,7 @@ export const NODOS = [
     panelesKw: 24,
     bateriaKwh: 45,
     descripcion: 'En instalación de paneles y batería comunitaria.'
-  },
+  }
  
 ]
 
