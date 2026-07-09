@@ -30,10 +30,11 @@ const Navigation = () => {
     }
   }
 
+  // ⬇️ proximamente: true = deshabilitado, muestra badge y no navega
   const platform = [
-    { to: '/dashboard',    label: 'Dashboard',    icon: LayoutDashboard, desc: 'KPIs y gráficas de energía' },
-    { to: '/nodos',        label: 'Nodos DER',    icon: MapPin,          desc: 'Mapa de nodos comunitarios' },
-    { to: '/digital-twin', label: 'Digital Twin', icon: Boxes,           desc: 'Gemelo digital en vivo' }
+    { to: '/dashboard',    label: 'Dashboard',    icon: LayoutDashboard, desc: 'KPIs y gráficas de energía', proximamente: true },
+    { to: '/nodos',        label: 'Nodos DER',    icon: MapPin,          desc: 'Mapa de nodos comunitarios',  proximamente: true },
+    { to: '/digital-twin', label: 'Digital Twin', icon: Boxes,           desc: 'Gemelo digital en vivo',      proximamente: true }
   ]
 
   const sectionLink = "text-white/70 hover:text-[#2ecc71] text-sm font-medium transition-colors cursor-pointer bg-transparent border-none"
@@ -75,17 +76,38 @@ const Navigation = () => {
               {platformOpen && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 w-72">
                   <div className="bg-white rounded-xl shadow-2xl border border-[#2ecc71]/15 p-2">
-                    {platform.map((p) => (
-                      <Link key={p.to} to={p.to} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[#F7F4EF] transition-colors">
-                        <div className="w-9 h-9 rounded-lg bg-[#2ecc71]/12 flex items-center justify-center flex-shrink-0">
-                          <p.icon className="w-4 h-4 text-[#0b3d2e]" />
+                    {platform.map((p) =>
+                      p.proximamente ? (
+                        <div
+                          key={p.to}
+                          className="flex items-start gap-3 p-3 rounded-lg opacity-50 cursor-not-allowed select-none"
+                          title="Próximamente"
+                        >
+                          <div className="w-9 h-9 rounded-lg bg-[#2ecc71]/12 flex items-center justify-center flex-shrink-0">
+                            <p.icon className="w-4 h-4 text-[#0b3d2e]" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-[#0b3d2e] text-sm">{p.label}</span>
+                              <span className="text-[9px] font-bold uppercase tracking-wide bg-[#f4d03f]/25 text-[#8a6d00] px-1.5 py-0.5 rounded-full">
+                                Próximamente
+                              </span>
+                            </div>
+                            <div className="text-xs text-[#5a7a6a]">{p.desc}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="font-semibold text-[#0b3d2e] text-sm">{p.label}</div>
-                          <div className="text-xs text-[#5a7a6a]">{p.desc}</div>
-                        </div>
-                      </Link>
-                    ))}
+                      ) : (
+                        <Link key={p.to} to={p.to} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[#F7F4EF] transition-colors">
+                          <div className="w-9 h-9 rounded-lg bg-[#2ecc71]/12 flex items-center justify-center flex-shrink-0">
+                            <p.icon className="w-4 h-4 text-[#0b3d2e]" />
+                          </div>
+                          <div>
+                            <div className="font-semibold text-[#0b3d2e] text-sm">{p.label}</div>
+                            <div className="text-xs text-[#5a7a6a]">{p.desc}</div>
+                          </div>
+                        </Link>
+                      )
+                    )}
                   </div>
                 </div>
               )}
@@ -120,11 +142,21 @@ const Navigation = () => {
               <button onClick={() => goToSection('#impacto')} className="block w-full text-left text-white/70 hover:text-[#2ecc71] py-2.5">Impacto</button>
 
               <div className="py-1"><span className="text-[10px] uppercase tracking-wider text-[#2ecc71]/70 font-bold">Plataforma</span></div>
-              {platform.map((p) => (
-                <Link key={p.to} to={p.to} className="flex items-center gap-3 text-white/70 hover:text-[#2ecc71] py-2.5 pl-2" onClick={() => setIsOpen(false)}>
-                  <p.icon className="w-4 h-4" />{p.label}
-                </Link>
-              ))}
+              {platform.map((p) =>
+                p.proximamente ? (
+                  <div key={p.to} className="flex items-center gap-3 text-white/40 py-2.5 pl-2 cursor-not-allowed select-none">
+                    <p.icon className="w-4 h-4" />
+                    {p.label}
+                    <span className="text-[9px] font-bold uppercase tracking-wide bg-[#f4d03f]/20 text-[#f4d03f] px-1.5 py-0.5 rounded-full">
+                      Próximamente
+                    </span>
+                  </div>
+                ) : (
+                  <Link key={p.to} to={p.to} className="flex items-center gap-3 text-white/70 hover:text-[#2ecc71] py-2.5 pl-2" onClick={() => setIsOpen(false)}>
+                    <p.icon className="w-4 h-4" />{p.label}
+                  </Link>
+                )
+              )}
 
               <div className="border-t border-white/10 my-2"></div>
               <button
