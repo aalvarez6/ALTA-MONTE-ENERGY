@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Send, X, MessageCircle, UserPlus } from 'lucide-react'
+import { Send, X, MessageCircle, UserPlus, Phone } from 'lucide-react'
 
 /* ════════════════════════════════════════════════════════════
    CONFIGURACIÓN — edita solo esta sección
@@ -44,7 +44,7 @@ const TXT = {
     intereses: ['Patrocinio / RSE-ESG', 'Nodo para mi comunidad', 'Alianza institucional', 'Inversión', 'Otro'],
     leadSend: 'Enviar datos',
     leadOk: '¡Gracias! Te contactaremos en menos de 24 horas.',
-    errConn: 'No pude conectarme. Escríbenos a altamonteenergy@gmail.com',
+    errConn: 'No pude conectarme ahora mismo. Escríbenos por WhatsApp al +57 304 588 6447 y te atendemos de inmediato 🌿',
     typing: 'Alma está escribiendo…'
   },
   en: {
@@ -62,7 +62,7 @@ const TXT = {
     intereses: ['Sponsorship / ESG-CSR', 'Node for my community', 'Institutional alliance', 'Investment', 'Other'],
     leadSend: 'Submit',
     leadOk: "Thanks! We'll reach out within 24 hours.",
-    errConn: "Couldn't connect. Write to altamonteenergy@gmail.com",
+    errConn: "Could not connect right now. Message us on WhatsApp +57 304 588 6447 and we will help you right away 🌿",
     typing: 'Alma is typing…'
   }
 }
@@ -262,6 +262,14 @@ const ChatWidget = () => {
 
           {/* Barra de acciones + entrada */}
           <div className="border-t border-[#2ecc71]/20 bg-white dark:bg-[#0e241b] p-3 space-y-2">
+            <a
+              href="https://wa.me/573045886447"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[11px] font-bold text-[#0B3D2E] dark:text-[#A3E4A9] hover:text-[#2ECC71] transition-colors"
+            >
+              <Phone size={13} /> WhatsApp directo
+            </a>
             {SHEETS_URL && !leadSent && !showLead && (
               <button
                 onClick={() => setShowLead(true)}
