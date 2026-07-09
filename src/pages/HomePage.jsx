@@ -11,7 +11,7 @@ import './HomePage.css'
 const IMG = {
   hero:        '/AM_Imagenes/Background.png',
   heroFallback:'/AM_Imagenes/AM_Background_placeholder.svg',
-  logo:        '/AM_Imagenes/Logo_White (1).png',
+  logo:        '/AM_Imagenes/Logo_White.png',
   antes:       '/AM_Imagenes/Altos_de_la_torre_M. Espinosa_1.jpg',
   despues:     '/AM_Imagenes/Altos_de_la_torre_paneles_IA1.png',
   antes_det:   '/AM_Imagenes/Altos_de_la_torre_ Decierto_Cediento_3.png',
