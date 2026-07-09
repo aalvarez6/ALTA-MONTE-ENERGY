@@ -11,11 +11,11 @@ import './HomePage.css'
 const IMG = {
   hero:        '/AM_Imagenes/Background.png',
   heroFallback:'/AM_Imagenes/AM_Background_placeholder.svg',
-  logo:        '/AM_Imagenes/logo.png',
-  antes:       '/AM_Imagenes/antes.jpg',
-  despues:     '/AM_Imagenes/despues.jpg',
-  antes_det:   '/AM_Imagenes/antes_detalle.jpg',
-  despues_det: '/AM_Imagenes/despues_detalle.jpg'
+  logo:        '/AM_Imagenes/Logo_White (1).png',
+  antes:       '/AM_Imagenes/Altos_de_la_torre_M. Espinosa_1.jpg',
+  despues:     '/AM_Imagenes/Altos_de_la_torre_paneles_IA1.png',
+  antes_det:   '/AM_Imagenes/Altos_de_la_torre_ Decierto_Cediento_3.png',
+  despues_det: '/AM_Imagenes/Altos_de_la_torre_paneles_GenIA_3.png'
 }
 
 const HomePage = () => {
