@@ -11,11 +11,11 @@ import './HomePage.css'
 const IMG = {
   hero:        '/AM_Imagenes/Background.png',
   heroFallback:'/AM_Imagenes/AM_Background_placeholder.svg',
-  logo:        '/AM_Imagenes/Logo_White(2)',
-  antes:       '/AM_Imagenes/Altos_de_la_torre_M. Espinosa',
-  despues:     '/AM_Imagenes/Altos de la torre_3.jpg',
-  antes_det:   '/AM_Imagenes/Altos_de_la_torre_3_ Decierto_Cediento',
-  despues_det: '/AM_Imagenes/Altos_de_la_torre_paneles_3'
+  logo:        '/AM_Imagenes/logo.png',
+  antes:       '/AM_Imagenes/antes.jpg',
+  despues:     '/AM_Imagenes/despues.jpg',
+  antes_det:   '/AM_Imagenes/antes_detalle.jpg',
+  despues_det: '/AM_Imagenes/despues_detalle.jpg'
 }
 
 const HomePage = () => {
@@ -106,7 +106,7 @@ const HomePage = () => {
 
         <div className="ba-grid">
           <div className="ba-panel">
-            <img src={IMG.antes} alt="La Torre antes de Alta Monte Energy" loading="lazy" />
+            <img src={IMG.antes} alt="La Torre antes de Alta Monte Energy" loading="lazy" onError={(e)=>{e.target.style.opacity=.15}} />
             <div className="ba-label">Antes</div>
             <div className="ba-caption">
               <strong>Sin nodo energético</strong>
@@ -114,10 +114,10 @@ const HomePage = () => {
             </div>
           </div>
           <div className="ba-panel">
-            <img src={IMG.despues} alt="La Torre con Alta Monte Energy activo" loading="lazy" />
-            <div className="ba-label after">Después · Nodo activo</div>
+            <img src={IMG.despues} alt="Simulación IA del barrio con nodo activo" loading="lazy" onError={(e)=>{e.target.style.opacity=.15}} />
+            <div className="ba-label after">Después · Simulación con IA</div>
             <div className="ba-caption">
-              <strong>Alta Monte Energy instalado</strong>
+              <strong>Visión del nodo instalado (imagen generada con IA)</strong>
               <p>Solar distribuido · Batería comunitaria · Gemelo digital activo</p>
             </div>
           </div>
@@ -125,7 +125,7 @@ const HomePage = () => {
 
         <div className="ba-grid" style={{ marginTop: 4 }}>
           <div className="ba-panel">
-            <img src={IMG.antes_det} alt="Techos sin paneles solares" loading="lazy" />
+            <img src={IMG.antes_det} alt="Techos sin paneles solares" loading="lazy" onError={(e)=>{e.target.style.opacity=.15}} />
             <div className="ba-label">Antes · Detalle techos</div>
             <div className="ba-caption">
               <strong>Techos sin aprovechar</strong>
@@ -133,14 +133,20 @@ const HomePage = () => {
             </div>
           </div>
           <div className="ba-panel">
-            <img src={IMG.despues_det} alt="Techos con paneles solares comunitarios" loading="lazy" />
-            <div className="ba-label after">Después · Nodo solar</div>
+            <img src={IMG.despues_det} alt="Simulación IA de techos con paneles" loading="lazy" onError={(e)=>{e.target.style.opacity=.15}} />
+            <div className="ba-label after">Después · Simulación con IA</div>
             <div className="ba-caption">
-              <strong>Techos que producen energía</strong>
+              <strong>Visión de techos solares (imagen generada con IA)</strong>
               <p>Cada cubierta se convierte en parte del nodo solar compartido</p>
             </div>
           </div>
         </div>
+
+        <p className="ba-disclaimer">
+          Las imágenes de "después" son simulaciones generadas con inteligencia artificial
+          que ilustran cómo podría verse el barrio con un nodo instalado. No corresponden
+          a instalaciones reales: el piloto La Torre está en desarrollo.
+        </p>
 
         <div className="trans-strip">
           <div className="trans-item"><span className="trans-from">Sin generación propia</span><span className="trans-arrow">→</span><span className="trans-to">Energía solar compartida</span></div>
