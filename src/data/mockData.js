@@ -21,7 +21,7 @@ export const NODOS = [
     id: 'AM-001',
     nombre: 'La Torre',
     comuna: 'Comuna 8 · Villa Hermosa',
-    estado: 'Planeado',          // activo | construccion | planeado
+    estado: 'planeado',          // activo | construccion | planeado
     lat: 6.2510,
     lng: -75.5450,
     familias: 48,
@@ -33,7 +33,7 @@ export const NODOS = [
     id: 'AM-002',
     nombre: 'El Pinal',
     comuna: 'Comuna 8 · Villa Hermosa',
-    estado: 'Planeado',
+    estado: 'planeado',
     lat: 6.2486,
     lng: -75.5388,
     familias: 36,
