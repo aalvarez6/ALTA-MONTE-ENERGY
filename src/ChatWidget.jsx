@@ -7,7 +7,7 @@ import { Send, X, MessageCircle, UserPlus, Phone } from 'lucide-react'
 
 // 📸 FOTO DE ALMA: sube tu imagen a  public/AM_Imagenes/Alma.png
 //    (nombre exacto). Si no existe, se muestra un círculo "A" de marca.
-const ALMA_AVATAR = '/AM_Imagenes/Alma.png'
+const ALMA_AVATAR = '/AM_Imagenes/barranquero.png'
 
 // 📋 CAPTURA DE LEADS: pega aquí la MISMA URL de Apps Script que ya usa
 //    tu formulario de contacto (la de Google Sheets). Si la dejas vacía,
