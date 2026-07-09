@@ -9,6 +9,7 @@ import { Mail, Phone, MapPin, Clock } from 'lucide-react'
   - Listas con ritmo vertical constante (space-y-3 = 12px)
   - Iconos a 16px alineados con flex items-center
   - Barra inferior centrada con separador
+  - central toda las columnas
 */
 
 const HEAD = 'text-white font-semibold text-xs uppercase tracking-[0.16em] mb-5'
@@ -26,7 +27,7 @@ const Footer = () => {
             <div className="flex items-center gap-3 mb-5">
               <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-[#2ecc71]/50 bg-[#0b3d2e] flex items-center justify-center flex-shrink-0">
                 <img
-                  src="/AM_Imagenes/logo.png"
+                  src="/AM_Imagenes/Logo_White (2).png"
                   alt="Alta Monte Energy"
                   className="w-full h-full object-cover"
                   onError={(e) => {
