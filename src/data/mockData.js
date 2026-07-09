@@ -21,7 +21,7 @@ export const NODOS = [
     id: 'AM-001',
     nombre: 'La Torre',
     comuna: 'Comuna 8 · Villa Hermosa',
-    estado: 'planeado',          // activo | construccion | planeado
+    estado: 'activo',          // activo | construccion | planeado
     lat: 6.2510,
     lng: -75.5450,
     familias: 48,
@@ -33,15 +33,50 @@ export const NODOS = [
     id: 'AM-002',
     nombre: 'El Pinal',
     comuna: 'Comuna 8 · Villa Hermosa',
-    estado: 'planeado',
+    estado: 'construccion',
     lat: 6.2486,
     lng: -75.5388,
     familias: 36,
     panelesKw: 24,
     bateriaKwh: 45,
     descripcion: 'En instalación de paneles y batería comunitaria.'
+  },
+  {
+    id: 'AM-003',
+    nombre: 'Llanaditas',
+    comuna: 'Comuna 8 · Villa Hermosa',
+    estado: 'planeado',
+    lat: 6.2453,
+    lng: -75.5331,
+    familias: 52,
+    panelesKw: 40,
+    bateriaKwh: 75,
+    descripcion: 'Estudio estructural en curso. Inicio previsto Q3 2026.'
+  },
+  {
+    id: 'AM-004',
+    nombre: 'Carambolas',
+    comuna: 'Comuna 3 · Manrique',
+    estado: 'planeado',
+    lat: 6.2718,
+    lng: -75.5402,
+    familias: 41,
+    panelesKw: 28,
+    bateriaKwh: 50,
+    descripcion: 'Alianza comunitaria en evaluación con la JAC local.'
+  },
+  {
+    id: 'AM-005',
+    nombre: 'El Faro',
+    comuna: 'Comuna 8 · Villa Hermosa',
+    estado: 'planeado',
+    lat: 6.2398,
+    lng: -75.5295,
+    familias: 38,
+    panelesKw: 26,
+    bateriaKwh: 48,
+    descripcion: 'Expansión del corredor energético de la Comuna 8.'
   }
- 
 ]
 
 /* ── KPIs del dashboard (estado agregado del nodo activo) ── */
